@@ -839,7 +839,7 @@ function addPhoneCallRecord(info,type,duration){
  const date='2023.10.31';
  const rec={name:info.name||info.phone,phone:info.phone||'',type,date,contactIndex:Number.isInteger(info.contactIndex)?info.contactIndex:null};
  if(duration)rec.duration=duration;
- phoneCallHistory.unshift(rec);if((type==='missed'||type==='incoming')&&window.__registerMissedCall){rec.badgeId=window.__registerMissedCall(rec)}renderRecentCalls();return rec;
+ phoneCallHistory.unshift(rec);if(type==='missed'&&window.__registerMissedCall){rec.badgeId=window.__registerMissedCall(rec)}renderRecentCalls();return rec;
 }
 const triggerOnce={chihayaCall:false,hiroCall:false,zeroCall:false,dateCall:false,hiroReply:false,hiroPostCall:false};
 let hiroPostTriggerPending=false,hiroPostTriggerReady=false,hiroIncomingTimeout=null,hiroIncomingMode=false,hiroPostCallbackUsed=false;
