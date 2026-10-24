@@ -254,20 +254,6 @@ body { display:block; }
 }
 </style>
 
-<style id="standalone-safe-area-phone-fit">
-/* Standalone only: fit the complete simulated phone inside iOS safe areas. */
-@media (display-mode: standalone) {
-  #phoneShell {
-    width: min(calc(100vw - 18px), 39dvh) !important;
-    max-width: calc(100vw - 18px) !important;
-    max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 18px) !important;
-    left: 50% !important;
-    top: calc(env(safe-area-inset-top) + (100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2) !important;
-    transform: translate(-50%, -50%) !important;
-  }
-}
-</style>
-
 /* Click-area editor: coordinate overrides only; original app markup/scripts are preserved. */
 <style id="hitbox-editor-coordinate-overrides">
 html > body > main > section:nth-of-type(3) > button:nth-of-type(9){position:absolute!important;left:77.10735139991016%!important;top:87.5574192650334%!important;width:18.9961072016769%!important;height:9.999652004454344%!important;right:auto!important;bottom:auto!important}
