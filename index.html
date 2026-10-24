@@ -1,0 +1,1371 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>iPhone 인터랙티브 시뮬레이터</title>
+<style>
+@font-face{font-family:"Pretendard";src:url("PretendardVariable.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif}body{display:flex;align-items:center;justify-content:center}.phone{position:relative;container-type:size;width:min(calc(100vw - 18px),46.276dvh);height:auto;max-height:calc(100dvh - 18px);aspect-ratio:379/819;background:#050505;border:6px solid #171717;border-radius:clamp(28px,7vw,48px);box-shadow:0 0 0 1px #444,0 12px 35px #0009;overflow:hidden;isolation:isolate}.screen{position:absolute;inset:0;overflow:hidden;background:#f5f5f7;background-size:100% 100%;background-position:center;background-repeat:no-repeat;opacity:0;pointer-events:none;transform:scale(.985);transition:opacity .16s ease,transform .18s ease}.screen.active{opacity:1;pointer-events:auto;transform:scale(1)}.screen.opening{transform:scale(1.012)}.screen.leaving-home{opacity:0!important;transform:scale(.84) translateY(1.5%)!important;transition:opacity .24s ease,transform .24s cubic-bezier(.2,.7,.2,1)!important;pointer-events:none!important}#lock{background-image:url('lock.png')}#passcode{background-image:url('passcode.png')}#home{background-image:url('home.png')}.hit{position:absolute;border:0;background:transparent;padding:0;cursor:pointer;touch-action:manipulation}.hit:active{background:transparent!important;box-shadow:none!important;filter:none!important;outline:none!important;-webkit-tap-highlight-color:transparent}.home-indicator{position:absolute;z-index:2147483647;bottom:0;left:29%;width:42%;height:2.5%;border-radius:0;background:transparent;box-shadow:none;touch-action:manipulation;pointer-events:auto;cursor:pointer;user-select:none;-webkit-user-select:none}.app-screen{background:#f5f5f7}.app-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;user-select:none;pointer-events:none}#x .xtop > .x-back-image{font-size:0!important;color:transparent!important;position:relative;width:12cqw;min-width:12cqw;height:100%;padding:0;background:transparent!important;border:0!important}#x .xtop > .x-back-image::before{content:'';position:absolute;inset:0;background:url('12-3.png') center/contain no-repeat}.top-back{position:absolute;left:3%;top:3.2%;width:14%;height:5%;z-index:5;background:transparent;border:0}.top-back::after{content:'';position:absolute;left:15%;top:34%;width:18%;height:28%;border-left:2px solid transparent}.app-title{position:absolute;top:4%;left:20%;right:20%;text-align:center;font-weight:600;font-size:4.1%;color:#111;pointer-events:none}.touch-row{position:absolute;left:3%;width:94%;height:6.5%;background:transparent;border:0}.toast{position:absolute;z-index:100;left:50%;top:8px;transform:translateX(-50%);padding:7px 12px;border-radius:12px;background:#222d;color:white;font-size:12px;display:none}.phone.editing .hit{outline:1px dashed #ffcc00}.call-controls-group{position:absolute;left:22%;top:57%;width:56%;height:5.5%;z-index:8}.call-play,.call-reset,.call-forward{position:absolute;top:0;height:100%;border:0;background:transparent;display:flex;align-items:center;justify-content:center;color:#050505;padding:0}.call-reset{left:0;width:23.2143%}.call-play{left:33.9286%;width:32.1428%}.call-forward{left:76.7857%;width:23.2143%}.call-play img,.call-reset img,.call-forward img{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none}.call-play:active,.call-reset:active,.call-forward:active{background:transparent;opacity:.65}.call-lines{position:absolute;left:7%;right:7%;top:18%;height:34%;font-size:clamp(9px,2.4vw,18px);line-height:1.55;color:#888;overflow:hidden}.call-lines span{display:block}.call-lines span.current{color:#111;font-weight:700}.mail-row{position:absolute;left:8%;width:84%;height:7.2%;background:transparent;border:0}.calendar-scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;overscroll-behavior:contain}.calendar-scroll::-webkit-scrollbar{display:none}.calendar-month{position:relative;width:100%;height:100%;flex:none;background-size:100% 100%;background-repeat:no-repeat;background-position:center}.calendar-stack{display:flex;flex-direction:column}.calendar-month-label{position:absolute;left:5%;top:12%;font-size:8%;font-weight:700;color:#000}.calendar-day-hit{position:absolute;width:12%;height:4.5%;background:transparent;border:0}.photo-back{position:absolute;left:2%;top:3%;width:13%;height:5%;background:transparent;border:0;z-index:4}
+ 
+.phone:after{content:'';position:absolute;left:29%;top:0;width:42%;height:1.1%;border-radius:0 0 9px 9px;background:#171717;opacity:.0;pointer-events:none}
+
+.bubble-msg{position:relative;display:block;max-width:82%;width:max-content;min-width:74px;min-height:38px;margin:8px 0;padding:12px 22px;background-repeat:no-repeat;background-size:100% 100%;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.3;color:#111;z-index:1}
+.bubble-msg.in{margin-right:auto;margin-left:0;background-image:url("메시지-수신인 말풍선.png");padding-left:22px;padding-right:22px;color:#111}
+.bubble-msg.out{margin-left:auto;margin-right:0;background-image:url("메시지-발신인 말풍선.png.png");padding-left:22px;padding-right:22px;color:#fff}
+.bubble-msg:before,.bubble-msg:after{content:none!important}
+
+/* Bubble fix: nine-slice scaling preserves rounded corners and the original tail. */
+.bubble-msg{background-color:transparent!important;background-repeat:stretch!important;background-size:auto!important;border-style:solid!important;border-width:13px!important;border-image-slice:30% 20% 22% 20% fill!important;border-image-width:13px!important;border-image-repeat:stretch!important;min-width:74px;min-height:38px;box-sizing:border-box;}
+.bubble-msg.in{border-image-source:url("메시지-수신인 말풍선.png")!important;background-image:none!important;}
+.bubble-msg.out{border-image-source:url("메시지-발신인 말풍선.png.png")!important;background-image:none!important;}
+/* Avoid tiled/repeated artwork and keep text above the bubble artwork. */
+.bubble-msg{background-repeat:no-repeat!important;position:relative;z-index:1;}
+
+/* v7 bubble correction: preserve the original corners/tail with nine-slice borders and center the text. */
+.bubble-msg{
+  display:flex!important; align-items:center!important; justify-content:center!important;
+  text-align:center!important; vertical-align:middle!important;
+  white-space:pre-wrap!important; overflow-wrap:anywhere!important; word-break:normal!important;
+  padding:7px 16px!important; margin-top:8px!important; margin-bottom:8px!important;
+  border-style:solid!important; border-width:12px!important;
+  border-image-slice:45 fill!important; border-image-width:12px!important; border-image-repeat:stretch!important;
+  background-image:none!important; background-color:transparent!important;
+  box-sizing:border-box!important; min-width:74px; min-height:38px;
+  line-height:1.3!important;
+}
+.bubble-msg.in{border-image-source:url("메시지-수신인 말풍선.png")!important;}
+.bubble-msg.out{border-image-source:url("메시지-발신인 말풍선.png.png")!important;}
+
+/* v44: Lock clock copies the global clock base styling while keeping its own placement. */
+
+/* Scale text-heavy app content against the phone container, not the browser viewport. */
+#noteText{font-size:3.2cqw!important;line-height:1.5!important;}
+#messageInput{font-size:3.7cqw!important;line-height:1.25!important;padding:2cqw 3cqw!important;border-radius:4.8cqw!important;}
+.bubble-msg{font-size:3.7cqw!important;line-height:1.25!important;margin:2.1cqw 0!important;padding:2.3cqw 3.7cqw!important;min-width:0!important;min-height:0!important;border-width:3.4cqw!important;border-image-width:3.4cqw!important;}
+#callLines{font-size:2.4cqw!important;line-height:1.55!important;}
+#dialNumber{font-size:8cqw!important;}
+#callNumber{font-size:clamp(30px,7.8cqw,46px)!important;}
+#callStatus{font-size:3cqw!important;}
+#vmTranscript{font-size:3cqw!important;}
+#musicPlayer{font-size:3cqw!important;}
+#liveTimer{font-size:4cqw!important;}
+.conversation-previews,.conversation-preview{font-size:2.5cqw!important;line-height:1.15!important;}
+.mail-message-row{background:transparent!important;border:0!important;padding:0!important;box-shadow:none!important;outline:none!important}.mail-unread-dot{display:block!important;position:absolute!important;z-index:20!important;border:0!important;padding:0!important;box-shadow:none!important;min-width:0!important;min-height:0!important;aspect-ratio:1!important;border-radius:50%!important}
+
+
+/* X app only: use the bundled Pretendard font throughout the app. */
+#x, #x .xapp, #x .xapp button, #x .xapp input, #x .xapp textarea, #x .xapp select {
+  font-family: 'Pretendard', 'Pretendard Variable', sans-serif !important;
+}
+
+
+/* Global typography only: preserve all existing sizes, positions, colors, and weights. */
+html, body, body *, input, textarea, select, button {
+  font-family: 'Pretendard', 'Pretendard Variable', sans-serif !important;
+}
+
+
+
+/* Phone app redesign: scoped to phone screens only */
+.phone-modern{background:#fff!important;color:#111}
+.phone-page-title{position:absolute;left:5%;right:5%;top:6%;height:7%;display:flex;align-items:center;justify-content:flex-start;font-size:clamp(24px,6cqw,34px);font-weight:750;padding-left:1%;z-index:2}
+.phone-recent-rows,.phone-voicemail-rows{position:absolute;left:0;right:0;top:14%;bottom:12%;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;background:#fff}.phone-recent-rows::-webkit-scrollbar,.phone-voicemail-rows::-webkit-scrollbar{display:none}
+.phone-row{position:relative;display:flex;align-items:center;gap:10px;min-height:70px;padding:9px 14px;border-bottom:1px solid #e7e7e7;background:transparent;font-family:inherit}
+.phone-row-main{flex:1;min-width:0;text-align:left;border:0;background:transparent;padding:0;color:#111;font:inherit}
+.phone-row-name{font-size:clamp(16px,4.35cqw,22px);font-weight:750;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.phone-row-sub{font-size:clamp(12px,3.1cqw,16px);font-weight:500;color:#777;display:block;margin-top:3px}
+.phone-row-name.missed{color:#e21b23}
+.phone-row-icon{font-size:19px;width:24px;text-align:center;color:#777;flex-shrink:0}.phone-avatar{width:42px;height:42px;object-fit:cover;border-radius:50%;flex-shrink:0;background:#9aaac6}
+.phone-row-icon.missed{color:#e21b23}
+.phone-info{border:0;background:transparent;color:#1687ff;font-size:25px;width:34px;height:42px;flex-shrink:0}
+.phone-info:disabled{opacity:.18}
+.phone-tabbar{position:absolute;left:0;right:0;bottom:0;height:11%;display:flex;align-items:center;justify-content:space-around;background:transparent;border:0;z-index:8}
+/* Phone bottom tabs are active only on the Phone app's Recent, Keypad, and Voicemail screens. */
+#phone .phone-tabbar,#phone-keypad .phone-tabbar,#phone-voicemail .phone-tabbar{pointer-events:auto}
+#phone .phone-tabbar .phone-tab,#phone-keypad .phone-tabbar .phone-tab,#phone-voicemail .phone-tabbar .phone-tab{pointer-events:auto}
+.screen:not(#phone):not(#phone-keypad):not(#phone-voicemail) .phone-tabbar{pointer-events:none!important}
+.screen:not(#phone):not(#phone-keypad):not(#phone-voicemail) .phone-tabbar .phone-tab{pointer-events:none!important}
+.phone-modern .phone-tabbar{display:flex!important;left:20%;width:60%;bottom:2.2%;height:7.2%;z-index:20;pointer-events:auto}.phone-modern .phone-tab{pointer-events:auto;cursor:pointer;color:transparent}.phone-modern .phone-tab span,.phone-modern .phone-tab small{color:transparent;pointer-events:none}
+.phone-tab{height:100%;flex:1;border:0;background:transparent;color:#888;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.phone-tab span{font-size:clamp(20px,5vw,27px);line-height:1}
+.phone-tab small{font-size:clamp(10px,2.7vw,13px)}
+.phone-tab.selected{color:#1687ff}
+#phone-keypad .app-bg{object-fit:fill}
+.phone-dial-number{position:absolute;left:8%;top:21%;width:84%;height:5%;text-align:center;font-size:clamp(30px,8cqw,48px);font-weight:750;color:#111;pointer-events:none;overflow:hidden}
+.phone-dial-match{position:absolute;left:8%;top:26%;width:84%;height:4%;text-align:center;font-size:clamp(16px,4cqw,22px);font-weight:700;color:#555;pointer-events:none}
+#dialKeys{position:absolute;inset:0;z-index:3}
+#dialKeys .hit{background:transparent;border:0;border-radius:50%}
+#dialCall{z-index:4}
+#dialDelete{z-index:4;background:transparent}
+.phone-tabbar-keypad{display:flex!important;position:absolute;left:20%;width:60%;bottom:2.2%;height:7.2%;background:transparent;z-index:20;pointer-events:auto}
+.phone-tabbar-keypad .phone-tab{gap:1px}
+.phone-tabbar-keypad .phone-tab span{font-size:clamp(16px,4vw,22px)}
+.phone-tabbar-keypad .phone-tab small{font-size:clamp(9px,2.4vw,11px)}
+.phone-call-screen{background:#55504d!important}
+.phone-call-screen .app-bg{object-fit:fill}
+.call-person-name{position:absolute;left:6%;right:6%;top:13.5%;height:12%;text-align:center;color:#fff;font-weight:750;font-size:clamp(30px,7.8cqw,46px);line-height:1.08;text-shadow:0 1px 2px #333;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.12em} .call-person-name .call-display-name{display:block;font-size:1em;line-height:1.08;max-width:100%;overflow-wrap:anywhere} .call-person-name .call-display-number{display:block;font-size:.68em;line-height:1.1;font-weight:600;max-width:100%;overflow-wrap:anywhere} .call-person-status{position:absolute;left:8%;right:8%;top:27%;height:5%;text-align:center;color:#fff;font-size:clamp(19px,5cqw,29px);font-weight:650;pointer-events:none}
+.call-caption{position:absolute;left:8%;right:8%;top:39%;height:16%;padding:3% 5%;box-sizing:border-box;display:flex;align-items:center;justify-content:center;text-align:center;white-space:pre-line;color:#fff;font-size:clamp(16px,4vw,22px);font-weight:600;line-height:1.4;text-shadow:0 1px 3px #222;pointer-events:none}
+.call-timer-live{position:absolute;left:10%;right:10%;top:32.5%;height:3%;text-align:center;color:#fff;font-size:clamp(13px,3vw,18px);line-height:1.1;pointer-events:none}
+#endCall{z-index:10;background:transparent}
+#phone-voicemail-detail{background:#fff!important;color:#111}
+.vm-back{position:absolute;left:4%;top:7.5%;border:0;background:transparent;color:#1687ff;font-size:16px;z-index:3;min-height:3.8%;padding:0 1%;touch-action:manipulation}
+.vm-sender{position:absolute;top:12%;left:5%;right:5%;text-align:center;font-size:clamp(23px,6vw,32px);font-weight:700}
+.vm-date{position:absolute;top:17%;left:5%;right:5%;text-align:center;color:#777;font-size:14px}
+.vm-wave{position:absolute;top:25%;left:8%;right:8%;height:8%;display:flex;align-items:center;justify-content:center;gap:3px}
+.vm-wave span{width:3px;height:20%;border-radius:4px;background:#1687ff;opacity:.7;transform-origin:center;will-change:transform,opacity}
+.vm-wave.playing span{animation:vmwave .42s cubic-bezier(.37,0,.63,1) infinite alternate}
+.vm-wave span:nth-child(3n){animation-delay:.2s}.vm-wave span:nth-child(4n){animation-delay:.35s}
+@keyframes vmwave{0%{transform:scaleY(.25);opacity:.42}35%{transform:scaleY(1.15);opacity:.9}70%{transform:scaleY(.55);opacity:.65}100%{transform:scaleY(1.55);opacity:1}}
+.vm-transcript{position:absolute;top:39%;left:9%;right:9%;height:43%;overflow:auto;text-align:center;font-size:clamp(17px,4.5vw,23px);line-height:1.65;color:#222}
+.vm-play{position:absolute;left:43%;top:86%;width:14%;height:7%;border:0;border-radius:50%;background:#1687ff;color:#fff;font-size:22px}
+
+/* Phone tab isolation: hidden everywhere unless one of the three main Phone screens is active. */
+.screen .phone-tabbar{display:none!important;pointer-events:none!important;visibility:hidden!important}
+#phone.active .phone-tabbar,#phone-keypad.active .phone-tabbar,#phone-voicemail.active .phone-tabbar{display:flex!important;pointer-events:auto!important;visibility:visible!important}
+#phone.active .phone-tabbar .phone-tab,#phone-keypad.active .phone-tabbar .phone-tab,#phone-voicemail.active .phone-tabbar .phone-tab{pointer-events:auto!important}
+#phone.active .phone-tabbar .phone-tab span,#phone.active .phone-tabbar .phone-tab small,#phone-keypad.active .phone-tabbar .phone-tab span,#phone-keypad.active .phone-tabbar .phone-tab small,#phone-voicemail.active .phone-tabbar .phone-tab span,#phone-voicemail.active .phone-tabbar .phone-tab small{pointer-events:none}
+
+/* Music app only: supplied background artwork and interactive controls */
+#music{background:#191d20;color:#fff}
+#music .music-cover{position:absolute;left:16.5%;top:14.7%;width:67%;aspect-ratio:1/1;border-radius:5.6%;overflow:hidden;display:none;z-index:2;pointer-events:none}
+#music .music-cover img{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
+#music .music-song-hit{position:absolute;left:5%;width:90%;height:6.6%;z-index:4;border:0;background:transparent;padding:0}
+#music .music-song-hit:focus-visible{outline:2px solid #fff;outline-offset:-3px}
+#music .music-play-hit{position:absolute;left:30%;top:56.5%;width:40%;height:5.5%;z-index:5;border:0;background:transparent;display:flex;align-items:center;justify-content:center;padding:0}
+#music .music-play-hit img{width:80%;height:80%;object-fit:contain;display:block;flex:none;margin:auto;pointer-events:none}
+#music .music-motion{position:absolute;left:39%;top:49.5%;width:22%;height:4.6%;display:flex;align-items:center;justify-content:center;gap:3.5%;z-index:3;pointer-events:none;opacity:.9}
+#music .music-motion span{display:block;width:5%;height:42%;border-radius:99px;background:#f6f6f6;transform:scaleY(.28);transform-origin:center}
+#music .music-motion.playing span{animation:musicBars .72s ease-in-out infinite alternate}
+#music .music-motion.playing span:nth-child(2n){animation-duration:.48s;animation-delay:-.25s}
+#music .music-motion.playing span:nth-child(3n){animation-duration:.9s;animation-delay:-.4s}
+@keyframes musicBars{from{transform:scaleY(.25)}to{transform:scaleY(2.25)}}
+#music .music-back{position:absolute;left:3%;top:7%;width:12%;height:5%;z-index:5}
+#music .music-more{position:absolute;right:3%;top:7%;width:12%;height:5%;z-index:5}
+#music .music-song-hit:active,#music .music-play-hit:active{opacity:.72}
+/* Tiny site-level Dynamic Island music status, above every app screen */
+#musicIsland{position:absolute;z-index:2147483000;left:50%;top:1.15%;transform:translateX(-50%);width:28%;height:2.7%;min-height:15px;max-height:24px;border-radius:999px;background:#000;display:none;align-items:center;justify-content:center;overflow:hidden;transition:width .2s ease,height .2s ease,top .2s ease;pointer-events:auto;color:#fff}
+#musicIsland.visible{display:flex}
+#musicIsland.expanded{width:59%;height:7.3%;max-height:60px;top:0.8%;padding:0 3%;justify-content:stretch}
+#musicIsland .island-bars{display:flex;align-items:center;justify-content:center;gap:3px;width:28%;height:70%;pointer-events:none}
+#musicIsland .island-bars span{width:2px;height:25%;border-radius:2px;background:#ff4567;transform:scaleY(.35)}
+#musicIsland.playing .island-bars span{animation:islandBars .65s ease-in-out infinite alternate}
+#musicIsland.playing .island-bars span:nth-child(2n){animation-delay:-.3s;animation-duration:.45s}
+#musicIsland.playing .island-bars span:nth-child(3n){animation-delay:-.2s;animation-duration:.8s}
+#musicIsland.expanded .island-bars{display:none}
+#musicIsland .island-detail{display:none;align-items:center;gap:7px;width:100%;min-width:0}
+#musicIsland.expanded .island-detail{display:flex}
+#musicIsland .island-track{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(9px,2.4cqw,13px);line-height:1.15}
+#musicIsland .island-artist{display:block;color:#a9a9ad;font-size:.82em;margin-top:2px}
+#musicIsland .island-toggle{flex:none;border:0;background:transparent;color:white;width:22px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;font-size:14px}
+#musicIsland .island-toggle img{width:18px;height:18px;object-fit:contain;filter:brightness(0) invert(1)}
+#musicIsland .island-toggle:focus-visible{outline:1px solid white;border-radius:50%}
+@keyframes islandBars{from{transform:scaleY(.2)}to{transform:scaleY(1)}}
+
+/* Messages list grouping and attachments only */
+.msg-section-label{height:24px;padding:3px 5% 2px;color:#a6a6ab;font-size:3.1cqw;font-weight:600;letter-spacing:.02em;background:transparent;display:flex;align-items:center}
+.msg-section-divider{height:1px;background:#e4e4e7;margin:1px 5% 5px}
+.msg-attachment{display:block;max-width:70%;max-height:28cqh;object-fit:contain;border-radius:12px;margin:1% 0 1% auto}
+.msg-bubble-row.in .msg-attachment{margin:1% auto 1% 0}
+.msg-bubble-row:has(.msg-attachment){align-items:flex-end;flex-wrap:wrap}
+</style>
+
+
+<style>
+/* Scoped call-note layout: same transcript and player geometry on all four recordings. */
+/* note-call transcript is enabled so it can be positioned and styled in the visual layout editor. */
+.call-note-screen .call-title-overlay{position:absolute;left:8%;right:8%;top:14.8%;height:4.8%;text-align:center;color:#111;font-size:6.2cqw;font-weight:800;line-height:1.1;pointer-events:none;z-index:4}
+.call-note-screen .call-date-mask{position:absolute;left:22%;right:22%;top:20.2%;height:3.2%;background:#fff;z-index:2;pointer-events:none}.call-note-screen .call-date-overlay{position:absolute;left:10%;right:10%;top:20.7%;height:3%;text-align:center;color:#8c8c91;font-size:3.5cqw;line-height:1.1;pointer-events:none;z-index:3}
+.call-note-screen .call-transcript{position:absolute;left:5%;right:5%;top:25%;height:25%;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;white-space:normal;text-align:center;font-family:Arial,sans-serif;font-size:5.2cqw;line-height:1.2;color:#888;font-weight:400;z-index:4;outline:none;box-sizing:border-box;overscroll-behavior:contain;}
+.call-note-screen .call-transcript::-webkit-scrollbar{display:none}
+.call-note-screen .call-transcript .call-line{display:block;margin:0 0 .2em}.call-note-screen .call-transcript .call-word.current{color:#111;font-weight:700}
+.call-note-screen .call-timer{position:absolute;left:25%;width:50%;top:52%;height:3%;text-align:center;color:#111;font-weight:700;font-size:5cqw;line-height:1.1;pointer-events:none;z-index:7}
+.call-note-screen .call-controls-group{position:absolute;left:22%;top:58%;width:56%;height:5.5%;z-index:8}
+
+#noteText{font-size:6.4cqw!important;line-height:1.5!important}
+</style><style>
+/* X app: light mode, profile images, timeline */
+#x{background:#fff!important;color:#0f1419;font-family:Arial, sans-serif;}
+#x>.app-bg{display:none!important}
+#x .xapp{position:absolute;left:0;right:0;top:6.5%;bottom:0;background:#fff;color:#0f1419;display:flex;flex-direction:column;font-family:Arial,sans-serif;font-size:3.25cqw;overflow:hidden}
+#x .xtop{height:10%;min-height:42px;display:flex;align-items:center;gap:10px;padding:0 4%;border-bottom:1px solid #eff3f4;flex-shrink:0;background:#fff}
+#x .xbrand{font-size:6cqw;font-weight:800;flex:1}#x .xbtn{border:0;background:transparent;color:#e7e9ea;font-size:4.3cqw;padding:7px;cursor:pointer}#x .xfeed{overflow:auto;flex:1;scrollbar-width:none}#x .xfeed::-webkit-scrollbar{display:none}
+#x .xpost{padding:3.4% 4%;scroll-margin-top:0;border-bottom:1px solid #eff3f4;display:flex;gap:3%;cursor:pointer}#x .xavatar{width:13cqw;height:13cqw;max-width:48px;max-height:48px;border-radius:50%;background:#41464b;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:4cqw;font-weight:700;color:white}#x .xpostmain{min-width:0;flex:1}#x .xmeta{color:#71767b;font-size:2.8cqw;margin-bottom:1.5%}#x .xname{color:#0f1419;font-weight:700}#x .xhandle{color:#71767b}#x .xtext{font-size:3.45cqw;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;color:#0f1419}#x .xactions{display:flex;justify-content:space-between;color:#71767b;margin-top:3%;max-width:94%}#x .xaction{border:0;background:transparent;color:inherit;padding:2px 4px;font-size:2.9cqw;cursor:pointer}#x .xaction.liked{color:#f91880}
+#x .xaction-icon{display:inline-block;width:19px;height:19px;object-fit:contain;object-position:center;vertical-align:middle;flex:none} #x .xaction{flex-shrink:0;white-space:nowrap}
+#x .xaction{display:inline-flex;align-items:center;gap:5px;min-width:32px;justify-content:center}
+#x .xaction:disabled{opacity:.5;cursor:default}
+#x .xreply-screen{position:absolute;inset:0;background:#fff;display:flex;flex-direction:column;overflow:hidden}
+#x .xreply-top{height:58px;min-height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 4%;background:#fff}
+#x .xreply-cancel{border:0;background:transparent;color:#0f1419;font-size:16px;padding:8px 0}
+#x .xreply-publish{border:0;border-radius:24px;background:#1d9bf0;color:#fff;font-weight:700;padding:9px 17px;font-size:14px}
+#x .xreply-publish:disabled{opacity:.48}
+#x .xreply-content{padding:8px 4%;overflow:auto;flex:1;background:#fff}
+#x .xreply-source{display:flex;gap:12px;position:relative;padding-bottom:20px}
+#x .xreply-source:after{content:"";position:absolute;left:15px;top:46px;bottom:0;width:2px;background:#cfd9de}
+#x .xreply-source .xavatar,#x .xreply-entry .xavatar{width:32px;height:32px;min-width:32px;font-size:12px}
+#x .xreply-source-main{min-width:0;flex:1;padding-right:2px}
+#x .xreply-source-meta{font-size:13px;line-height:1.45;color:#536471}
+#x .xreply-source-meta strong{color:#0f1419}
+#x .xreply-source-text{font-size:16px;line-height:1.45;color:#0f1419;margin-top:2px;white-space:pre-wrap;overflow-wrap:anywhere}
+#x .xreply-source-image{width:100px;height:100px;object-fit:cover;border-radius:12px;margin-top:8px;float:right}
+#x .xreply-to{margin:0 0 10px 44px;color:#536471;font-size:13px}
+#x .xreply-to span{color:#1d9bf0}
+#x .xreply-entry{display:flex;gap:12px;align-items:flex-start;padding-top:2px}
+#x .xreply-entry textarea{flex:1;min-width:0;min-height:80px;resize:none;border:0;outline:0;background:#fff;color:#0f1419;font:inherit;font-size:16px;line-height:1.45;padding:3px 0}
+#x .xreply-entry textarea::placeholder{color:#71767b}
+#x .xreply-bottom{border-top:1px solid #eff3f4;padding:10px 4%;color:#1d9bf0;font-size:13px}
+#x .xcompose-screen{display:flex;gap:3%;padding:5%;align-items:flex-start;background:#fff;min-height:45%;}#x .xcompose-screen textarea{flex:1;min-width:0;min-height:180px;resize:none;border:0;outline:0;background:#fff;color:#0f1419;font:inherit;font-size:4cqw;line-height:1.5;}#x .xfloat-compose{position:absolute;right:5%;bottom:10%;width:14cqw;height:14cqw;max-width:58px;max-height:58px;border-radius:50%;font-size:7cqw;box-shadow:0 2px 7px #0003;z-index:5;padding:0;display:flex;align-items:center;justify-content:center;}#x .xreply-screen .xreply-top{position:relative;}
+#x .xcompose{display:flex;gap:3%;padding:3%;border-bottom:1px solid #2f3336}#x .xcompose textarea{flex:1;min-width:0;resize:none;background:#000;color:#e7e9ea;border:0;outline:none;font:inherit;min-height:45px}#x .xprimary{background:#eff3f4;color:#0f1419;border:0;border-radius:99px;font-weight:700;padding:7px 14px;align-self:flex-end}#x .xnav{height:8%;min-height:38px;border-top:1px solid #2f3336;display:flex;justify-content:space-around;align-items:center;flex-shrink:0}#x .xnav button{font-size:5cqw;display:flex;align-items:center;justify-content:center;padding:0}#x .xnav button img{width:7cqw;height:7cqw;max-width:30px;max-height:30px;object-fit:contain;display:block}#x .xprofilehead{height:24%;background:#16181c;position:relative;flex-shrink:0}#x .xprofilehead .xavatar{position:absolute;bottom:-18%;left:4%;width:18cqw;height:18cqw;max-width:70px;max-height:70px;border:4px solid #000;font-size:6cqw}#x .xprofileinfo{padding:10% 4% 4%;border-bottom:1px solid #2f3336}#x .xbio{color:#e7e9ea;line-height:1.4;margin:3% 0}#x .xprivate{color:#71767b;font-size:2.8cqw;margin-top:2%}#x .xempty{padding:12%;text-align:center;color:#71767b}#x .xback{font-size:5cqw}#x .xreplylabel{color:#71767b;font-size:2.8cqw;margin-bottom:2%}#x .xviewtitle{font-weight:800;font-size:4cqw}#x .xcomposewrap{border-bottom:1px solid #2f3336;padding:3%}
+#x .xcompose-top{justify-content:space-between;}#x .xcompose-top .xprimary{margin-left:auto;align-self:center;}
+</style>
+
+/* Click-area editor: coordinate overrides only; original app markup/scripts are preserved. */
+<style id="hitbox-editor-coordinate-overrides">
+html > body > main > section:nth-of-type(2) > button:nth-of-type(1){position:absolute!important;left:15.735887835983936%!important;top:34.731695940006105%!important;width:18.19508673823676%!important;height:8.398870008156145%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(2) > button:nth-of-type(2){position:absolute!important;left:41.01287780704694%!important;top:34.84305285485787%!important;width:18.195094160261707%!important;height:8.398873458302225%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(2) > button:nth-of-type(3){position:absolute!important;left:66.24869780572286%!important;top:35.06403126108359%!important;width:18.19507931621181%!important;height:8.398870008156145%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(2) > button:nth-of-type(4){position:absolute!important;left:15.735887835983936%!important;top:45.731834635878485%!important;width:18.19508673823676%!important;height:8.398870008156145%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(2) > button:nth-of-type(5){position:absolute!important;left:40.77332452982214%!important;top:45.84319155073025%!important;width:18.195094160261707%!important;height:8.398873458302225%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(2) > button:nth-of-type(6){position:absolute!important;left:66.24869780572286%!important;top:45.84319155073025%!important;width:18.19507931621181%!important;height:8.398873458302225%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(2) > button:nth-of-type(7){position:absolute!important;left:15.735887835983936%!important;top:56.73023445812696%!important;width:18.19508673823676%!important;height:8.398870008156145%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(2) > button:nth-of-type(8){position:absolute!important;left:41.01287780704694%!important;top:56.73023445812696%!important;width:18.195094160261707%!important;height:8.398870008156145%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(2) > button:nth-of-type(9){position:absolute!important;left:66.24869780572286%!important;top:56.95294828783051%!important;width:18.19507931621181%!important;height:8.398876908448303%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(2) > button:nth-of-type(10){position:absolute!important;left:41.01287780704694%!important;top:67.81910746100989%!important;width:18.195094160261707%!important;height:8.398876908448303%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(2) > button:nth-of-type(11){position:absolute!important;left:65.91555279390255%!important;top:88.46220778987782%!important;width:19.99925482869521%!important;height:5.399147399900912%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(21) > div > button:nth-of-type(1){position:absolute!important;left:15.3204072465938%!important;top:14.601893095768373%!important;width:74.84279083695165%!important;height:5.2721325167037865%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(21) > div > button:nth-of-type(2){position:absolute!important;left:15.559964066477017%!important;top:25.259256681514476%!important;width:76.75924539601738%!important;height:4.969376391982182%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(21) > div > button:nth-of-type(3){position:absolute!important;left:16.27489145081599%!important;top:32.03125%!important;width:74.84279083695165%!important;height:5.082474944320713%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(21) > div > button:nth-of-type(4){position:absolute!important;left:15.795777811049557%!important;top:38.916341870824056%!important;width:76.51968857613414%!important;height:4.525682071269488%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(21) > div > button:nth-of-type(5){position:absolute!important;left:15.559964066477017%!important;top:45.74227449888642%!important;width:76.51968857613414%!important;height:4.748399220489978%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(21) > div > button:nth-of-type(6){position:absolute!important;left:16.035334630932773%!important;top:52.79266425389755%!important;width:74.36367719718521%!important;height:4.525682071269488%!important;right:auto!important;bottom:auto!important}
+</style>
+
+<style id="phone-bezel-centering-fix">
+/* Keep the complete phone bezel centered in the visible browser viewport. */
+html, body { width:100%; height:100%; margin:0; overflow:hidden; }
+body { display:block; }
+#phoneShell {
+  position:fixed !important;
+  left:50% !important;
+  top:50% !important;
+  margin:0 !important;
+  transform:translate(-50%,-50%) !important;
+  flex:none !important;
+}
+</style>
+
+/* Click-area editor: coordinate overrides only; original app markup/scripts are preserved. */
+<style id="hitbox-editor-coordinate-overrides">
+html > body > main > section:nth-of-type(3) > button:nth-of-type(9){position:absolute!important;left:77.10735139991016%!important;top:87.5574192650334%!important;width:18.9961072016769%!important;height:9.999652004454344%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(5) > button:nth-of-type(1){position:absolute!important;left:15.717169489064833%!important;top:22.748469170184666%!important;width:69.99926225072016%!important;height:3.8992895459193746%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(5) > button:nth-of-type(2){position:absolute!important;left:14.998502235365475%!important;top:28.914949758972796%!important;width:69.99925482869521%!important;height:3.8992895459193746%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(5) > button:nth-of-type(3){position:absolute!important;left:15.47761621184003%!important;top:34.41327850821204%!important;width:69.99926225072016%!important;height:3.8992895459193746%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(5) > button:nth-of-type(4){position:absolute!important;left:15.717169489064833%!important;top:39.575794189125965%!important;width:69.99926225072016%!important;height:3.8992895459193746%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(5) > button:nth-of-type(5){position:absolute!important;left:16.19628346553939%!important;top:45.53173651372399%!important;width:69.99925482869521%!important;height:3.8992895459193746%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(23) > button:nth-of-type(1){position:absolute!important;left:8.234766368014279%!important;top:40.65979903589118%!important;width:83.99835171669953%!important;height:6.999928926990768%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(23) > button:nth-of-type(2){position:absolute!important;left:7.998946369338368%!important;top:47.884187566501566%!important;width:83.99835913872448%!important;height:6.999928926990768%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(23) > button:nth-of-type(3){position:absolute!important;left:7.998946369338368%!important;top:61.66132814063347%!important;width:83.99835913872448%!important;height:6.999932377136848%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(23) > button:nth-of-type(4){position:absolute!important;left:7.998946369338368%!important;top:69.88620728201631%!important;width:83.99835913872448%!important;height:6.99992547684469%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(24) > button:nth-of-type(1){position:absolute!important;left:2.998201198033579%!important;top:5.983783278384007%!important;width:13.999104310029264%!important;height:4.998956330811047%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(24) > button:nth-of-type(2){position:absolute!important;left:55.19538777556865%!important;top:6.006402436079144%!important;width:11.996560336758053%!important;height:4.998956330811047%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(24) > button:nth-of-type(3){position:absolute!important;left:70.71418880384567%!important;top:6.229119715928772%!important;width:11.996545492708158%!important;height:4.998956330811047%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(24) > button:nth-of-type(4){position:absolute!important;left:84.23791983797423%!important;top:5.89330492253042%!important;width:11.996545492708158%!important;height:4.998955468274527%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(25) > button{position:absolute!important;left:84.52613191075876%!important;top:8.231834635878483%!important;width:11.996560336758053%!important;height:4.998954605738007%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(26) > button{position:absolute!important;left:85.48435986370787%!important;top:7.565423395026545%!important;width:11.996560336758053%!important;height:4.998956330811047%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(27) > button{position:absolute!important;left:84.28657863353396%!important;top:7.342706115176917%!important;width:11.996560336758053%!important;height:4.998956330811047%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(28) > button{position:absolute!important;left:85.00523846520836%!important;top:7.67678117241484%!important;width:11.996560336758053%!important;height:4.998955468274527%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(29) > div > button:nth-of-type(1){position:absolute!important;left:1.4373345073987198%!important;top:15.125626719035285%!important;width:29.02007301491263%!important;height:13.933739254520036%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(29) > div > button:nth-of-type(2){position:absolute!important;left:35.727653841506516%!important;top:15.125626719035285%!important;width:29.020058170862733%!important;height:13.26559086511723%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(29) > div > button:nth-of-type(3){position:absolute!important;left:69.0597452226652%!important;top:15.125626719035285%!important;width:29.020058170862733%!important;height:12.931513220269746%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(29) > div > button:nth-of-type(4){position:absolute!important;left:1.6731545060746305%!important;top:30.339991195227206%!important;width:29.73873284658704%!important;height:13.376947779969003%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(29) > div > button:nth-of-type(5){position:absolute!important;left:35.727653841506516%!important;top:30.562708475076832%!important;width:29.25962629213743%!important;height:13.488308144966856%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(29) > div > button:nth-of-type(6){position:absolute!important;left:68.09777656914224%!important;top:30.005917000525802%!important;width:30.696960799536154%!important;height:14.490534179217148%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(29) > div > button:nth-of-type(7){position:absolute!important;left:0.7186672536993599%!important;top:45.99979023111839%!important;width:30.936521498785908%!important;height:13.822382339668263%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(29) > div > button:nth-of-type(8){position:absolute!important;left:33.81119793560829%!important;top:45.99979023111839%!important;width:32.13056945041093%!important;height:13.933739254520036%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(29) > div > button:nth-of-type(9){position:absolute!important;left:66.89998049491844%!important;top:45.88843331626661%!important;width:32.37386342820957%!important;height:14.267816899367519%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(29) > div > button:nth-of-type(10){position:absolute!important;left:0.9544798303503226%!important;top:62.103284953084916%!important;width:30.6969682215611%!important;height:12.597435575422264%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(29) > div > button:nth-of-type(11){position:absolute!important;left:35.96346641815748%!important;top:62.21464186793669%!important;width:29.25962629213743%!important;height:13.04287013512152%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(29) > div > button:nth-of-type(12){position:absolute!important;left:69.77466435376577%!important;top:62.88279715763166%!important;width:28.30139833918832%!important;height:12.040644100871232%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(30) > button{position:absolute!important;left:3.4361377800960886%!important;top:5.67232737884122%!important;width:12.999706384693052%!important;height:4.998955468274527%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(36) > div:nth-of-type(3) > button:nth-of-type(1){position:absolute!important;left:12.322201681355843%!important;top:29.889336564510145%!important;width:21.99805810139258%!important;height:9.498538518120856%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(36) > div:nth-of-type(3) > button:nth-of-type(3){position:absolute!important;left:65.67599951667773%!important;top:29.555262369808737%!important;width:21.99806552341753%!important;height:9.498538518120856%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(36) > div:nth-of-type(3) > button:nth-of-type(4){position:absolute!important;left:12.8013156578304%!important;top:41.06695422484188%!important;width:21.99805067936763%!important;height:9.498538518120856%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(36) > div:nth-of-type(3) > button:nth-of-type(5){position:absolute!important;left:39.23865758725407%!important;top:40.7328765799944%!important;width:21.99805067936763%!important;height:9.498538518120856%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(36) > div:nth-of-type(3) > button:nth-of-type(6){position:absolute!important;left:64.95732484095342%!important;top:41.06695422484188%!important;width:21.99806552341753%!important;height:9.498538518120856%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(36) > div:nth-of-type(3) > button:nth-of-type(7){position:absolute!important;left:13.040868935055203%!important;top:52.13321152017576%!important;width:21.99805810139258%!important;height:9.498535067974778%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(36) > div:nth-of-type(3) > button:nth-of-type(8){position:absolute!important;left:39.234916886680224%!important;top:52.69000299472679%!important;width:21.99805067936763%!important;height:9.498541968266936%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(36) > div:nth-of-type(3) > button:nth-of-type(9){position:absolute!important;left:65.91555279390255%!important;top:52.57864607987502%!important;width:21.99806552341753%!important;height:9.498535067974778%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(36) > div:nth-of-type(3) > button:nth-of-type(10){position:absolute!important;left:13.040868935055203%!important;top:63.86762065505853%!important;width:21.99805810139258%!important;height:9.498541968266936%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(36) > div:nth-of-type(3) > button:nth-of-type(11){position:absolute!important;left:37.56175495858064%!important;top:64.3130552147578%!important;width:21.99806552341753%!important;height:9.498541968266936%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(36) > div:nth-of-type(3) > button:nth-of-type(12){position:absolute!important;left:65.67599951667773%!important;top:63.86762065505853%!important;width:21.99806552341753%!important;height:9.498541968266936%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(37) > button{position:absolute!important;left:39.23865758725407%!important;top:82.96735333774032%!important;width:21.99805067936763%!important;height:7.4993065206380845%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(41) > button{position:absolute!important;left:4.431795004858458%!important;top:5.983783278384007%!important;width:13.999104310029264%!important;height:4.998956330811047%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(42) > button{position:absolute!important;left:1.3624759637722055%!important;top:25.450652905644024%!important;width:93.67420813673625%!important;height:13.072453412677493%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(43) > button{position:absolute!important;left:7.987716845591897%!important;top:90.77811834553074%!important;width:11.206767817981072%!important;height:5.106830323195885%!important;right:auto!important;bottom:auto!important}
+</style>
+
+/* Click-area editor: coordinate overrides only; original app markup/scripts are preserved. */
+<style id="hitbox-editor-coordinate-overrides">
+#contactMessageIcon{position:absolute!important;left:12.989375923104262%!important;top:54.145040392788545%!important;width:14.997285258739746%!important;height:8.19997121182082%!important;right:auto!important;bottom:auto!important}
+#contactPhoneIcon{position:absolute!important;left:32.99093159589893%!important;top:54.02970185366428%!important;width:14.997285258739746%!important;height:8.19997121182082%!important;right:auto!important;bottom:auto!important}
+</style>
+
+<style id="home-app-badges-style">
+/* Scale badge dimensions and text with the responsive home-screen width. */
+#home{container-type:inline-size}
+#home .home-app-badge{position:absolute;min-width:7.3846cqw;height:7.3846cqw;padding:0 1.8462cqw;box-sizing:border-box;border-radius:999px;background:#ff3b30;color:#fff;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;font-size:4.5128cqw;font-weight:700;line-height:7.3846cqw;text-align:center;z-index:100;pointer-events:none;box-shadow:0 1px 1px rgba(0,0,0,.12)}
+#home .home-app-badge[hidden]{display:none!important}
+#home #badge-phone{left:22.8%;top:83.4%}
+#home #badge-messages{left:44.5%;top:83.4%}
+#home #badge-mail{left:19.2%;top:16.7%}
+.msg-row-avatar-wrap{position:relative;display:inline-flex;flex:0 0 14cqw;width:14cqw;height:14cqw;min-width:0;min-height:0;overflow:visible}
+.msg-row-unread-dot{position:absolute;left:-2px;top:-2px;width:9px;height:9px;border-radius:50%;background:#007aff;border:1.5px solid #fff;box-sizing:content-box}
+</style>
+
+
+/* Click-area editor: coordinate overrides only; original app markup/scripts are preserved. */
+<style id="hitbox-editor-coordinate-overrides">
+html > body > main > section:nth-of-type(3) > button:nth-of-type(6){position:absolute!important;left:6.236917590510893%!important;top:87.38285755478663%!important;width:18.99759671292348%!important;height:9.998558246828143%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(3) > button:nth-of-type(7){position:absolute!important;left:29.479029382122647%!important;top:86.57547577854672%!important;width:18.99759671292348%!important;height:9.998558246828143%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(3) > button:nth-of-type(8){position:absolute!important;left:52.728893712690905%!important;top:87.84421856978085%!important;width:19.99767423831305%!important;height:9.998558246828143%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(3) > span:nth-of-type(1){position:absolute!important;left:16.962555236840064%!important;top:18.429209919261822%!important;width:18.559578261880766%!important;height:4.1522491349480966%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(3) > span:nth-of-type(2){position:absolute!important;left:18.082797116055506%!important;top:87.66580161476355%!important;width:8.930924877897512%!important;height:4.1522491349480966%!important;right:auto!important;bottom:auto!important}
+html > body > main > section:nth-of-type(3) > span:nth-of-type(3){position:absolute!important;left:42.26684239088301%!important;top:87.31978085351788%!important;width:8.930924877897512%!important;height:4.1522491349480966%!important;right:auto!important;bottom:auto!important}
+</style>
+</head><body><main class="phone" id="phoneShell">
+<section class="screen active" id="lock"><div class="ios-lock-time" id="iosLockTime" aria-label="잠금 화면 시계">--:--</div><button class="hit" id="unlock" style="inset:0" aria-label="잠금 해제"></button></section>
+<section class="screen" id="passcode"><div id="dots" style="position:absolute;left:34%;top:24.1%;width:32%;height:2.2%;display:flex;justify-content:space-between;align-items:center;pointer-events:none"><i class="passdot"></i><i class="passdot"></i><i class="passdot"></i><i class="passdot"></i></div>
+<style>.passdot{width:9.2%;aspect-ratio:1;border:1.5px solid #fff;border-radius:50%;display:block;flex:0 0 9.2%}.passdot.filled{background:#fff;transform:none}
+/* Passcode keypad: subtle iOS-style circular press feedback, limited to digit hit areas */
+#passcode .key{overflow:hidden;border-radius:50%;-webkit-tap-highlight-color:transparent}
+#passcode .key::after{content:"";position:absolute;inset:0;border-radius:50%;background:rgba(255,255,255,.24);opacity:0;transform:scale(.72);pointer-events:none}
+#passcode .key:active::after{opacity:1;transform:scale(1);animation:passcode-key-press .22s ease-out}
+@keyframes passcode-key-press{0%{opacity:.12;transform:scale(.72)}45%{opacity:1;transform:scale(1)}100%{opacity:.72;transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){#passcode .key:active::after{animation:none;opacity:.7;transform:scale(1)}}
+
+@keyframes passcode-shake{0%,100%{transform:translateX(0)}12%{transform:translateX(-14px)}24%{transform:translateX(14px)}36%{transform:translateX(-12px)}48%{transform:translateX(12px)}60%{transform:translateX(-9px)}72%{transform:translateX(9px)}84%{transform:translateX(-4px)}}
+#dots.shake{animation:passcode-shake .58s ease-in-out}
+@media(prefers-reduced-motion:reduce){#dots.shake{animation-duration:.01ms}}
+.bubble-msg{position:relative;display:block;max-width:82%;width:max-content;min-width:74px;min-height:38px;margin:8px 0;padding:12px 22px;background-repeat:no-repeat;background-size:100% 100%;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.3;color:#111;z-index:1}
+.bubble-msg.in{margin-right:auto;margin-left:0;background-image:url("메시지-수신인 말풍선.png");padding-left:22px;padding-right:22px;color:#111}
+.bubble-msg.out{margin-left:auto;margin-right:0;background-image:url("메시지-발신인 말풍선.png.png");padding-left:22px;padding-right:22px;color:#fff}
+.bubble-msg:before,.bubble-msg:after{content:none!important}
+</style>
+<button class="hit key" data-digit="1" style="left:15.5%;top:35.4%;width:18.2%;height:8.4%;border-radius:50%" aria-label="1"></button>
+<button class="hit key" data-digit="2" style="left:37.9%;top:35.4%;width:18.2%;height:8.4%;border-radius:50%" aria-label="2"></button>
+<button class="hit key" data-digit="3" style="left:60.5%;top:35.4%;width:18.2%;height:8.4%;border-radius:50%" aria-label="3"></button>
+<button class="hit key" data-digit="4" style="left:15.5%;top:46.4%;width:18.2%;height:8.4%;border-radius:50%" aria-label="4"></button>
+<button class="hit key" data-digit="5" style="left:37.9%;top:46.4%;width:18.2%;height:8.4%;border-radius:50%" aria-label="5"></button>
+<button class="hit key" data-digit="6" style="left:60.5%;top:46.4%;width:18.2%;height:8.4%;border-radius:50%" aria-label="6"></button>
+<button class="hit key" data-digit="7" style="left:15.5%;top:57.4%;width:18.2%;height:8.4%;border-radius:50%" aria-label="7"></button>
+<button class="hit key" data-digit="8" style="left:37.9%;top:57.4%;width:18.2%;height:8.4%;border-radius:50%" aria-label="8"></button>
+<button class="hit key" data-digit="9" style="left:60.5%;top:57.4%;width:18.2%;height:8.4%;border-radius:50%" aria-label="9"></button>
+<button class="hit key" data-digit="0" style="left:37.9%;top:68.6%;width:18.2%;height:8.4%;border-radius:50%" aria-label="0"></button>
+<button class="hit" id="cancel" style="left:64%;top:89.8%;width:20%;height:5.4%"></button></section>
+<section class="screen" id="home">
+<button class="hit" data-app="calendar" data-default-hit="5,5,23,12" style="left:5%;top:5%;width:23%;height:12%" aria-label="캘린더"></button>
+<button class="hit" data-app="mail" data-default-hit="5,18,23,12" style="left:5%;top:18%;width:23%;height:12%" aria-label="메일"></button>
+<button class="hit" data-app="contacts" data-default-hit="5,30,24,12" style="left:5%;top:30%;width:24%;height:12%" aria-label="연락처"></button>
+<button class="hit" data-app="notes" data-default-hit="5,65,22,13" style="left:5%;top:65%;width:22%;height:13%" aria-label="메모"></button>
+<button class="hit" data-app="photos" data-default-hit="28,65,22,13" style="left:28%;top:65%;width:22%;height:13%" aria-label="사진"></button>
+
+<button class="hit" data-app="phone" data-default-hit="5,86,19,10" style="left:5%;top:86%;width:19%;height:10%" aria-label="전화"></button>
+<button class="hit" data-app="messages" data-default-hit="27,86,19,10" style="left:27%;top:86%;width:19%;height:10%" aria-label="메시지"></button>
+<button class="hit" data-app="stocks" data-default-hit="50,86,20,10" style="left:50%;top:86%;width:20%;height:10%" aria-label="주식"></button>
+<button class="hit" data-app="safari" data-default-hit="74,86,19,10" style="left:74%;top:86%;width:19%;height:10%" aria-label="사파리"></button>
+<button class="hit" data-app="music" data-default-hit="51,66,20,12" style="left:51%;top:66%;width:20%;height:12%" aria-label="음악"></button>
+<button class="hit" data-app="x" data-default-hit="75,66,20,12" style="left:75%;top:66%;width:20%;height:12%" aria-label="X"></button>
+
+<span class="home-app-badge" id="badge-mail" aria-label="999+개의 메일">999+</span>
+<span class="home-app-badge" id="badge-phone" hidden aria-label="부재중 전화"></span>
+<span class="home-app-badge" id="badge-messages" hidden aria-label="읽지 않은 메시지"></span>
+</section>
+<section class="screen app-screen" id="calendar"><div class="calendar-scroll" id="calendarScroll"><div class="calendar-stack" id="calendarStack"></div></div><img id="calendarFixedHeader" src="calendar2.png" alt="" aria-hidden="true" style="position:absolute;left:0;top:0;width:100%;height:auto;max-width:none;z-index:20;pointer-events:none;display:block"></section>
+<section class="screen app-screen" id="mail"><img class="app-bg" src="mail-home.png"><button class="hit mail-row" data-mail="mail-all" style="left:15%;top:25.2%;width:70%;height:3.9%" aria-label="모든 받은 편지함"></button><button class="hit mail-row" data-mail="mail-vip" style="left:15%;top:31.7%;width:70%;height:3.9%" aria-label="VIP"></button><button class="hit mail-row" data-mail="mail-drafts" style="left:15%;top:38.2%;width:70%;height:3.9%" aria-label="임시 저장"></button><button class="hit mail-row" data-mail="mail-sent" style="left:15%;top:44.7%;width:70%;height:3.9%" aria-label="보낸 편지함"></button><button class="hit mail-row" data-mail="mail-trash" style="left:15%;top:51.1%;width:70%;height:3.9%" aria-label="휴지통"></button></section>
+<section class="screen app-screen" id="mail-all"><img class="app-bg" src="mail-all.png"><button class="hit top-back" data-back="mail" aria-label="뒤로" style="left:3.5%;top:7.1%;width:11.5%;height:5.2%"></button>
+<button class="hit mail-message-row" data-mail-index="0" style="left:20%;top:22.5%;width:78%;height:9.3%" aria-label="경시청 보고서 관리 담당 메일"></button>
+<button class="hit mail-message-row" data-mail-index="1" style="left:20%;top:32.4%;width:78%;height:9.3%" aria-label="럭키 라이프 이벤트 메일"></button>
+<button class="hit mail-message-row" data-mail-index="2" style="left:20%;top:42.3%;width:78%;height:9.3%" aria-label="경시청 업무 시스템 자동 알림 메일"></button>
+<button class="hit mail-message-row" data-mail-index="3" style="left:20%;top:52.2%;width:78%;height:9.3%" aria-label="당직 책임자 메일"></button>
+<button class="hit mail-message-row" data-mail-index="4" style="left:20%;top:62.1%;width:78%;height:9.3%" aria-label="경시청 교육 담당 메일"></button>
+<button class="hit mail-message-row" data-mail-index="5" style="left:20%;top:72%;width:78%;height:9.3%" aria-label="경시청 교육훈련 담당 메일"></button>
+<button class="hit mail-message-row" data-mail-index="6" style="left:20%;top:81.9%;width:78%;height:9.3%" aria-label="경시청 근무관리계 메일"></button>
+<button class="mail-unread-dot" data-dot-index="0" style="position:absolute;left:3.2%;top:26.1%;width:1.8%;aspect-ratio:1;border-radius:50%;background:#168bff;pointer-events:none"></button>
+<button class="mail-unread-dot" data-dot-index="1" style="position:absolute;left:3.2%;top:36%;width:1.8%;aspect-ratio:1;border-radius:50%;background:transparent;pointer-events:none"></button>
+<button class="mail-unread-dot" data-dot-index="2" style="position:absolute;left:3.2%;top:45.9%;width:1.8%;aspect-ratio:1;border-radius:50%;background:#168bff;pointer-events:none"></button>
+<button class="mail-unread-dot" data-dot-index="3" style="position:absolute;left:3.2%;top:55.8%;width:1.8%;aspect-ratio:1;border-radius:50%;background:#168bff;pointer-events:none"></button>
+<button class="mail-unread-dot" data-dot-index="4" style="position:absolute;left:3.2%;top:65.7%;width:1.8%;aspect-ratio:1;border-radius:50%;background:#168bff;pointer-events:none"></button>
+<button class="mail-unread-dot" data-dot-index="5" style="position:absolute;left:3.2%;top:75.6%;width:1.8%;aspect-ratio:1;border-radius:50%;background:#168bff;pointer-events:none"></button>
+<button class="mail-unread-dot" data-dot-index="6" style="position:absolute;left:3.2%;top:85.5%;width:1.8%;aspect-ratio:1;border-radius:50%;background:#168bff;pointer-events:none"></button>
+</section>
+<section class="screen app-screen" id="mail-message"><img class="app-bg" src="mail-message-detail.png"><button class="hit top-back" data-back="mail-all" aria-label="받은 편지함으로" style="left:3.5%;top:7.1%;width:11.5%;height:5.2%"></button></section>
+<section class="screen app-screen" id="mail-vip"><img class="app-bg" src="mail-vip.png"><button class="hit top-back" data-back="mail" aria-label="뒤로" style="left:3.5%;top:7.1%;width:11.5%;height:5.2%"></button><button class="hit vip-pdf-row" data-vip-pdf="1" style="left:5%;top:13.5%;width:93%;height:9.3%" aria-label="VIP 메일 1"></button>
+<button class="hit vip-pdf-row" data-vip-pdf="2" style="left:5%;top:23.4%;width:93%;height:9.3%" aria-label="VIP 메일 2"></button>
+<button class="hit vip-pdf-row" data-vip-pdf="3" style="left:5%;top:33.3%;width:93%;height:9.3%" aria-label="VIP 메일 3"></button>
+<button class="hit vip-pdf-row" data-vip-pdf="4" style="left:5%;top:43.2%;width:93%;height:9.3%" aria-label="VIP 메일 4"></button>
+<button class="hit vip-pdf-row" data-vip-pdf="5" style="left:5%;top:53.1%;width:93%;height:9.3%" aria-label="VIP 메일 5"></button>
+<button class="hit vip-pdf-row" data-vip-pdf="6" style="left:5%;top:63.0%;width:93%;height:9.3%" aria-label="VIP 메일 6"></button>
+<button class="hit vip-pdf-row" data-vip-pdf="7" style="left:5%;top:72.9%;width:93%;height:9.3%" aria-label="VIP 메일 7"></button>
+<button class="hit vip-pdf-row" data-vip-pdf="8" style="left:5%;top:82.8%;width:93%;height:9.3%" aria-label="VIP 메일 8"></button></section>
+<section class="screen app-screen pdf-mail-screen" id="vipmail-message-detail1" style="background:#fff;overflow:hidden"><img src="vipmail-message-detail-01.png" alt="VIP 메일 1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff"><button class="hit" data-back="mail-vip" aria-label="VIP 메일로 돌아가기" style="left:3.8%;top:9%;width:11%;height:5%;z-index:10"></button></section>
+<section class="screen app-screen pdf-mail-screen" id="vipmail-message-detail2" style="background:#fff;overflow:hidden"><img src="vipmail-message-detail-02.png" alt="VIP 메일 2" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff"><button class="hit" data-back="mail-vip" aria-label="VIP 메일로 돌아가기" style="left:3.8%;top:9%;width:11%;height:5%;z-index:10"></button></section>
+<section class="screen app-screen pdf-mail-screen" id="vipmail-message-detail3" style="background:#fff;overflow:hidden"><img src="vipmail-message-detail-03.png" alt="VIP 메일 3" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff"><button class="hit" data-back="mail-vip" aria-label="VIP 메일로 돌아가기" style="left:3.8%;top:9%;width:11%;height:5%;z-index:10"></button></section>
+<section class="screen app-screen pdf-mail-screen" id="vipmail-message-detail4" style="background:#fff;overflow:hidden"><img src="vipmail-message-detail-04.png" alt="VIP 메일 4" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff"><button class="hit" data-back="mail-vip" aria-label="VIP 메일로 돌아가기" style="left:3.8%;top:9%;width:11%;height:5%;z-index:10"></button></section>
+<section class="screen app-screen pdf-mail-screen" id="vipmail-message-detail5" style="background:#fff;overflow:hidden"><img src="vipmail-message-detail-05.png" alt="VIP 메일 5" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff"><button class="hit" data-back="mail-vip" aria-label="VIP 메일로 돌아가기" style="left:3.8%;top:9%;width:11%;height:5%;z-index:10"></button></section>
+<section class="screen app-screen pdf-mail-screen" id="vipmail-message-detail6" style="background:#fff;overflow:hidden"><img src="vipmail-message-detail-06.png" alt="VIP 메일 6" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff"><button class="hit" data-back="mail-vip" aria-label="VIP 메일로 돌아가기" style="left:3.8%;top:9%;width:11%;height:5%;z-index:10"></button></section>
+<section class="screen app-screen pdf-mail-screen" id="vipmail-message-detail7" style="background:#fff;overflow:hidden"><img src="vipmail-message-detail-07.png" alt="VIP 메일 7" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff"><button class="hit" data-back="mail-vip" aria-label="VIP 메일로 돌아가기" style="left:3.8%;top:9%;width:11%;height:5%;z-index:10"></button></section>
+<section class="screen app-screen pdf-mail-screen" id="vipmail-message-detail8" style="background:#fff;overflow:hidden"><img src="vipmail-message-detail-08.png" alt="VIP 메일 8" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff"><button class="hit" data-back="mail-vip" aria-label="VIP 메일로 돌아가기" style="left:3.8%;top:9%;width:11%;height:5%;z-index:10"></button></section>
+<section class="screen app-screen" id="mail-drafts"><img class="app-bg" src="mail-drafts.png"><button class="hit top-back" data-back="mail" aria-label="뒤로" style="left:3.5%;top:7.1%;width:11.5%;height:5.2%"></button><button class="hit draft-message-row" data-open-draft2="1" style="left:18%;top:22%;width:79%;height:10.5%" aria-label="두 번째 임시 저장 메일"></button></section>
+<section class="screen app-screen" id="mail-drafts-2"><img class="app-bg" src="mail-drafts-2.png"><button class="hit" data-back="mail-drafts" aria-label="임시 저장으로 돌아가기" style="left:3.8%;top:9%;width:11%;height:5%;z-index:10"></button><button class="hit" id="draftSendButton" aria-label="메일 전송" style="right:3.8%;left:auto;top:9%;width:11%;height:5%;z-index:10"></button></section>
+<section class="screen app-screen" id="mail-sent"><img class="app-bg" src="mail-sent.png"><button class="hit top-back" data-back="mail" aria-label="뒤로" style="left:3.5%;top:7.1%;width:11.5%;height:5.2%"></button></section>
+<section class="screen app-screen" id="mail-trash"><img class="app-bg" src="mail-trash.png"><button class="hit top-back" data-back="mail" aria-label="뒤로" style="left:3.5%;top:7.1%;width:11.5%;height:5.2%"></button></section>
+<section class="screen app-screen" id="contacts"><img class="app-bg" src="contacts-list.png" id="contactsBg"><div id="contactRows"></div></section>
+<section class="screen app-screen" id="contact-detail"><div id="contactDetailScroll" style="position:absolute;inset:0;overflow:hidden;overflow-x:hidden;scrollbar-width:none;background:#fff"><img id="contactDetailImage" src="contact-detail3.png" style="display:block;width:100%;height:auto;max-width:100%;user-select:none;pointer-events:none"></div><button class="hit top-back" data-back="contacts" aria-label="뒤로" style="left:3.5%;top:5.4%;width:12%;height:5.8%;z-index:10"></button><button class="hit" id="contactMessageIcon" data-editor-name="연락처 상세 - 메시지" style="left:12%;top:52.3%;width:15%;height:8.2%;display:none;z-index:30" aria-label="메시지"></button><button class="hit" id="contactPhoneIcon" data-editor-name="연락처 상세 - 전화" style="left:32%;top:52.3%;width:15%;height:8.2%;display:none;z-index:30" aria-label="전화"></button></section>
+<section class="screen app-screen" id="notes"><img class="app-bg" src="notes-list.png"><button class="hit" id="openCallNote" style="left:8%;top:43%;width:84%;height:7%" aria-label="2019년 11월 7일 통화 녹음"></button><button class="hit" id="openCallNote2" style="left:8%;top:50%;width:84%;height:7%" aria-label="2019년 11월 7일 통화 녹음 2"></button><button class="hit" id="openCallNote3" style="left:8%;top:64%;width:84%;height:7%" aria-label="2019년 10월 6일 통화 녹음"></button><button class="hit" id="openCallNote4" style="left:8%;top:71%;width:84%;height:7%" aria-label="2019년 10월 2일 통화 녹음"></button><button class="hit" id="openNormalNote" style="left:5%;top:26%;width:90%;height:8%" aria-label="일반 메모"></button></section>
+<section class="screen app-screen" id="note-edit"><img class="app-bg" src="notes-edit.png"><button class="hit top-back" data-back="notes" aria-label="뒤로"></button><div id="noteEditScroll" style="position:absolute;inset:12% 5% 13%;overflow:auto;scrollbar-width:none;z-index:4"><textarea id="noteText" aria-label="메모 내용" placeholder="" style="display:block;width:100%;min-height:100%;height:auto;overflow:hidden;border:0;outline:0;resize:none;background:transparent;color:#222;font:inherit;font-size:6.4cqw;line-height:1.5;padding:0;margin:0">너무 보고싶으면 어떡해야 할까</textarea></div><button class="hit" id="noteUndoInactive" style="left:54%;top:3%;width:12%;height:5%" aria-label="실행 취소" tabindex="-1"></button><button class="hit" id="noteShareInactive" style="left:70%;top:3%;width:12%;height:5%" aria-label="공유" tabindex="-1"></button><button class="hit" id="noteMoreInactive" style="left:84%;top:3%;width:12%;height:5%" aria-label="더보기" tabindex="-1"></button><button class="hit" id="noteToolsInactive" style="left:6%;bottom:3%;width:43%;height:6%" aria-label="하단 도구" tabindex="-1"></button><button class="hit" id="noteNewInactive" style="right:5%;bottom:3%;width:14%;height:6%" aria-label="새 메모" tabindex="-1"></button></section>
+<section class="screen app-screen call-note-screen" id="note-call" data-note-date="2019.11.7 오후"><img class="app-bg" src="notes-call.png"><div class="call-title-overlay">통화 녹음</div><div class="call-date-mask"></div><div class="call-date-overlay">2019.11.7 오후</div><button class="hit call-list-back" aria-label="메모 목록으로"></button><div class="call-transcript" contenteditable="false" aria-label="통화 녹음 대사"></div><div class="call-timer" >00:00.00</div><div class="call-controls-group" aria-label="통화 녹음 재생 조작부"><button class="hit call-reset" aria-label="15초 되감기"><img src="bf15.png" alt="" aria-hidden="true"></button><button class="hit call-play" aria-label="재생"><img class="call-play-icon" src="pl.png" alt="" aria-hidden="true"></button><button class="hit call-forward" aria-label="15초 앞으로"><img src="af15.png" alt="" aria-hidden="true"></button></div><iframe id="callRecordingYT" title="통화 녹음 1 오디오" data-player-src="https://www.youtube-nocookie.com/embed/fV4H5eVlsAc?enablejsapi=1&autoplay=0&playsinline=1&start=26" allow="autoplay; encrypted-media" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;border:0" src="about:blank"></iframe></section>
+<section class="screen app-screen call-note-screen" id="note-call2" data-note-date="2019.11.9 오전"><img class="app-bg" src="notes-call.png"><div class="call-title-overlay">통화 녹음</div><div class="call-date-mask"></div><div class="call-date-overlay">2019.11.9 오전</div><button class="hit call-list-back" aria-label="메모 목록으로"></button><div class="call-transcript" contenteditable="false" aria-label="통화 녹음 대사"></div><div class="call-timer">00:00.00</div><div class="call-controls-group"><button class="hit call-reset" aria-label="15초 되감기"><img src="bf15.png" alt=""></button><button class="hit call-play" aria-label="재생"><img class="call-play-icon" src="pl.png" alt=""></button><button class="hit call-forward" aria-label="15초 앞으로"><img src="af15.png" alt=""></button></div></section>
+<section class="screen app-screen call-note-screen" id="note-call3" data-note-date="2019. 10. 6. 오후"><img class="app-bg" src="notes-call.png"><div class="call-title-overlay">통화 녹음</div><div class="call-date-mask"></div><div class="call-date-overlay">2019. 10. 6. 오후</div><button class="hit call-list-back" aria-label="메모 목록으로"></button><div class="call-transcript" contenteditable="false" aria-label="통화 녹음 대사"></div><div class="call-timer">00:00.00</div><div class="call-controls-group"><button class="hit call-reset" aria-label="15초 되감기"><img src="bf15.png" alt=""></button><button class="hit call-play" aria-label="재생"><img class="call-play-icon" src="pl.png" alt=""></button><button class="hit call-forward" aria-label="15초 앞으로"><img src="af15.png" alt=""></button></div></section>
+<section class="screen app-screen call-note-screen" id="note-call4" data-note-date="2019. 10. 2. 오후"><img class="app-bg" src="notes-call.png"><div class="call-title-overlay">통화 녹음</div><div class="call-date-mask"></div><div class="call-date-overlay">2019. 10. 2. 오후</div><button class="hit call-list-back" aria-label="메모 목록으로"></button><div class="call-transcript" contenteditable="false" aria-label="통화 녹음 대사"></div><div class="call-timer">00:00.00</div><div class="call-controls-group"><button class="hit call-reset" aria-label="15초 되감기"><img src="bf15.png" alt=""></button><button class="hit call-play" aria-label="재생"><img class="call-play-icon" src="pl.png" alt=""></button><button class="hit call-forward" aria-label="15초 앞으로"><img src="af15.png" alt=""></button></div></section>
+<section class="screen app-screen" id="photos"><img class="app-bg" src="photos-grid.png"><div id="photoHits"></div></section>
+<section class="screen app-screen" id="photo-detail"><img class="app-bg" src="photo-detail.png"><button class="hit photo-back" data-back="photos" aria-label="뒤로"></button><div id="photoOverlay" style="position:absolute;inset:0;pointer-events:none"></div></section>
+
+<style id="x-statusbar-stock-screen">#x .x-status-bar-image{position:absolute;left:0;top:0;width:100%;height:6.2%;object-fit:fill;z-index:1000;pointer-events:none;user-select:none}</style>
+<!-- X: interactive UI is rendered by the script below; legacy screenshot references removed. -->
+<section class="screen app-screen" id="x"></section>
+<section class="screen app-screen" id="stocks" style="background:#000"><img class="app-bg" src="IMG_0109.png" alt="주식 앱"></section>
+<!-- Phone -->
+<section class="screen app-screen phone-modern" id="phone"><img class="app-bg" src="call322.png">
+<div class="phone-page-title">최근 통화</div>
+<div id="phoneRecentRows" class="phone-recent-rows"></div>
+<div class="phone-tabbar">
+<button class="phone-tab" data-phone-tab="phone" aria-label="최근 통화"><span>◷</span><small>최근 통화</small></button>
+<button class="phone-tab" data-phone-tab="phone-keypad" aria-label="키패드"><span>▦</span><small>키패드</small></button>
+<button class="phone-tab" data-phone-tab="phone-voicemail" aria-label="음성 사서함"><span>▤</span><small>음성 사서함</small></button>
+</div></section>
+<section class="screen app-screen" id="phone-favorites"><img class="app-bg" src="phone-전화1.png"><button class="hit top-back" data-back="phone" aria-label="뒤로"></button><button class="hit" id="phoneFavoritesRowToPhone3" style="left:0;top:10.5%;width:84%;height:9%" aria-label="연락처로 이동"></button><button class="hit" id="phoneFavoritesInfoToContact3" style="left:84%;top:10.5%;width:16%;height:9%" aria-label="연락처 상세"></button></section>
+<section class="screen app-screen" id="phone-contacts"><img class="app-bg" src="phone-전화3.png"><button class="hit top-back" data-back="phone" aria-label="뒤로"></button><button class="hit" id="phoneContactOpen" style="left:5%;top:18%;width:90%;height:12%" aria-label="연락처 열기"></button></section>
+<section class="screen app-screen phone-modern" id="phone-keypad">
+<img class="app-bg" src="call323.png">
+<div id="dialNumber" class="phone-dial-number"></div>
+<div id="dialMatch" class="phone-dial-match"></div>
+<div id="dialKeys"></div>
+<button class="hit" id="dialDelete" style="left:72%;top:21%;width:15%;height:6%;font-size:clamp(20px,5vw,28px);color:#333;background:transparent;border:0" aria-label="숫자 하나 삭제">⌫</button>
+<button class="hit" id="dialCall" style="left:40%;top:75.5%;width:20%;height:9.5%" aria-label="통화"></button>
+<div class="phone-tabbar phone-tabbar-keypad">
+<button class="phone-tab" data-phone-tab="phone" aria-label="최근 통화"><span>◷</span><small>최근 통화</small></button>
+<button class="phone-tab selected" data-phone-tab="phone-keypad" aria-label="키패드"><span>▦</span><small>키패드</small></button>
+<button class="phone-tab" data-phone-tab="phone-voicemail" aria-label="음성 사서함"><span>▤</span><small>음성 사서함</small></button>
+</div>
+</section>
+<section class="screen app-screen phone-call-screen" id="phone-call">
+<img class="app-bg" id="phoneCallBackground" src="phone-screen.png">
+<div id="callNumber" class="call-person-name"></div>
+<div id="callStatus" class="call-person-status">연결 중</div>
+<div id="callCaption" class="call-caption" aria-live="polite"></div>
+<div id="callTimer" class="call-timer-live"></div>
+<button class="hit" id="endCall" style="left:39%;top:72.5%;width:22%;height:7.5%" aria-label="종료"></button>
+<div id="hiroIncomingControls" style="display:none;position:absolute;left:0;right:0;bottom:13%;justify-content:space-evenly;align-items:center;z-index:30"><button id="hiroReject" style="border:0;border-radius:50%;width:76px;height:76px;background:#ff3b30;color:white;font-size:29px">✕</button><button id="hiroAnswer" style="border:0;border-radius:50%;width:76px;height:76px;background:#34c759;color:white;font-size:29px">☎</button></div>
+</section>
+<section class="screen app-screen phone-modern" id="phone-voicemail"><img class="app-bg" src="call322.png">
+<div class="phone-page-title">음성 사서함</div>
+<div id="voicemailRows" class="phone-voicemail-rows"></div>
+<div class="phone-tabbar">
+<button class="phone-tab" data-phone-tab="phone" aria-label="최근 통화"><span>◷</span><small>최근 통화</small></button>
+<button class="phone-tab" data-phone-tab="phone-keypad" aria-label="키패드"><span>▦</span><small>키패드</small></button>
+<button class="phone-tab selected" data-phone-tab="phone-voicemail" aria-label="음성 사서함"><span>▤</span><small>음성 사서함</small></button>
+</div>
+</section>
+<section class="screen app-screen phone-modern" id="phone-voicemail-detail">
+<button class="vm-back" id="vmBack" aria-label="뒤로">‹ 음성 사서함</button>
+<div id="vmSender" class="vm-sender">치하야</div>
+<div id="vmDate" class="vm-date"></div>
+<div class="vm-wave" id="vmWave" aria-label="파형 애니메이션"></div>
+<div id="vmTranscript" class="vm-transcript"></div>
+<button id="vmPlay" class="vm-play" aria-label="일시정지">Ⅱ</button>
+</section>
+<!-- Messages: isolated rebuild; other screens are untouched -->
+<section class="screen app-screen" id="messages">
+ <img class="app-bg" src="msg1.png" alt="">
+ <div class="msg-list-ui">
+  <button class="msg-edit-static" type="button">편집</button>
+  <button class="msg-filter-static" type="button" aria-label="필터"><span></span><span></span><span></span></button>
+  <div class="msg-search-static"><b>⌕</b><span>검색</span></div>
+  <div id="messageRows" class="msg-conversation-rows"></div>
+ </div>
+</section>
+<section class="screen app-screen" id="message-chat">
+ <img class="app-bg" src="msg2.png" alt="">
+ <button class="hit top-back" data-back="messages" aria-label="뒤로"></button>
+ <img class="msg-chat-avatar" id="msgChatAvatar" src="hg.png" alt="">
+ <div class="msg-chat-contact" id="msgChatContact">하기</div>
+ <div class="msg-imessage">iMessage</div>
+ <div id="messageHistory" class="msg-chat-history"></div>
+ <div class="msg-input-bar">
+  <button class="msg-plus" type="button" aria-label="추가">＋</button>
+  <div class="msg-input-wrap"><input id="messageInput" type="text" placeholder="iMessage" autocomplete="off" readonly inputmode="none" aria-label="메시지 입력 (가상 키보드 사용)"></div>
+  <button class="msg-send" id="sendMessage" aria-label="보내기" disabled>↑</button>
+ </div>
+ <div id="iosVirtualKeyboard" class="ios-virtual-keyboard" aria-label="가상 키보드" aria-hidden="true"></div>
+</section>
+<!-- Safari -->
+<section class="screen app-screen" id="safari"><img class="app-bg" src="safari1.png"><button class="hit" id="safariNews" style="left:4%;top:22%;width:92%;height:30%" aria-label="뉴스"></button></section>
+<section class="screen app-screen" id="safari-news"><div id="safariArticleScroll" style="position:absolute;left:0;right:0;top:0;bottom:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;background:#fff"><img src="safari2-b.png" style="display:block;width:100%;height:auto"></div><img src="safari2-t.png" style="position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none"><button class="hit" id="safariBack" style="left:2%;bottom:2%;width:16%;height:7%;z-index:2" aria-label="뒤로"></button></section>
+<!-- Music: the supplied image remains the visual base; controls are transparent overlays -->
+<section class="screen app-screen" id="music"><img class="app-bg" src="music.png" alt=""><div class="music-cover" id="musicCover"><img id="musicCoverImage" src="music-c1.png" alt="선택한 곡 앨범 커버"></div><button class="hit music-back" data-back="home" aria-label="홈으로"></button><button class="hit music-more" aria-label="더 보기"></button><div class="music-motion" id="musicMotion" aria-label="음악 재생 애니메이션"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><button class="music-play-hit" id="musicPlay" aria-label="재생"><img id="musicPlayImage" src="pl.png" alt=""></button><button class="music-song-hit" data-music-track="0" style="top:64.8%" aria-label="Run to you - SEVENTEEN 재생"></button><button class="music-song-hit" data-music-track="1" style="top:71.4%" aria-label="SODA SODA - TWS 재생"></button><button class="music-song-hit" data-music-track="2" style="top:78.1%" aria-label="Goodbye My Baby - Jace June 재생"></button></section>
+<div id="musicIsland" aria-label="현재 재생 중인 음악"><div class="island-bars" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div><div class="island-detail"><div class="island-track"><span id="islandTitle">Run to you</span><span class="island-artist" id="islandArtist">SEVENTEEN</span></div><button class="island-toggle" id="islandToggle" aria-label="일시정지"><img id="islandToggleImage" src="st.png" alt=""></button></div></div>
+<div id="ytPlayer" aria-hidden="true" style="position:absolute;width:200px;height:200px;left:-210px;top:0;opacity:.01;pointer-events:none;overflow:hidden"></div>
+
+<div class="ios-status-time" id="iosStatusTime" aria-label="현재 시각">--:--</div>
+<div class="home-indicator" id="homeIndicator" aria-label="홈으로"></div><div class="toast" id="toast"></div><div id="iosMessageNotice" role="button" tabindex="0" aria-label="새 메시지 알림"><div class="notice-name"></div><div class="notice-body"></div></div></main>
+
+<style id="trigger-call-caption-notification-style">
+.call-caption{white-space:pre-line;opacity:1;transition:opacity .32s ease,transform .32s ease;transform:translateY(0);line-height:1.45}
+.call-caption.caption-exit{opacity:0;transform:translateY(-7px)}
+#iosMessageNotice{position:absolute;z-index:9999;left:4%;right:4%;top:1.5%;min-height:8%;box-sizing:border-box;padding:3.1% 4%;border-radius:16px;background:rgba(0,0,0,.97);color:#fff;display:none;opacity:0;transform:translateY(-130%);transition:transform .42s cubic-bezier(.2,.8,.2,1),opacity .32s ease;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;box-shadow:0 5px 18px rgba(0,0,0,.28);cursor:pointer}
+#iosMessageNotice.visible{display:block;opacity:1;transform:translateY(0)}
+#iosMessageNotice .notice-name{font-size:3.3cqw;font-weight:700;margin-bottom:1.2%;color:#fff}
+#iosMessageNotice .notice-body{font-size:3.1cqw;line-height:1.35;color:#fff;overflow-wrap:anywhere}
+@media(prefers-reduced-motion:reduce){#iosMessageNotice,.call-caption{transition:none}}
+</style>
+<script>
+(()=>{
+const $=id=>document.getElementById(id), phone=$('phoneShell');
+let current='lock',entered='',callTimer=null,callSeconds=0,callPlaying=false,activePhoto=0;
+const screenIds=['lock','passcode','home','calendar','mail','mail-all','mail-message','mail-vip','vipmail-message-detail1','vipmail-message-detail2','vipmail-message-detail3','vipmail-message-detail4','vipmail-message-detail5','vipmail-message-detail6','vipmail-message-detail7','vipmail-message-detail8','mail-drafts','mail-drafts-2','mail-sent','mail-trash','contacts','contact-detail','notes','note-edit','note-call','note-call2','note-call3','note-call4','photos','photo-detail'];
+function show(id){if(id==='note-call'&&current!=='note-call'){callRecordingPendingPlay=false;if(callRecordingPlayerReady&&callRecordingPlayer){try{callRecordingPlayer.pauseVideo()}catch(e){}}}if(current==='note-call'&&id!=='note-call'){callRecordingPendingPlay=false;if(callRecordingPlayerReady&&callRecordingPlayer){try{callRecordingPlayer.pauseVideo()}catch(e){}}if(typeof callStates!=='undefined'&&callStates['note-call']){const st=callStates['note-call'];if(st.interval)clearInterval(st.interval);st.interval=null;st.playing=false;}}const previous=$(current);const goingHome=id==='home'&&previous&&previous.classList.contains('app-screen');if(goingHome){previous.classList.remove('leaving-home');void previous.offsetWidth;previous.classList.add('leaving-home');setTimeout(()=>previous.classList.remove('leaving-home'),260)}document.querySelectorAll('.screen').forEach(s=>{s.classList.toggle('active',s.id===id);s.classList.remove('opening')});current=id;const s=$(id);if(s&&s.classList.contains('app-screen')){requestAnimationFrame(()=>{s.classList.add('opening');setTimeout(()=>s.classList.remove('opening'),220)})}if(id==='note-edit')$('noteText').focus({preventScroll:true});if(typeof window.__refreshInteractionView==='function')window.__refreshInteractionView();}
+function toast(t){let el=$('toast');el.textContent=t;el.style.display='block';setTimeout(()=>el.style.display='none',1500)}
+$('unlock').onclick=()=>{entered='';document.querySelectorAll('.passdot').forEach(d=>d.classList.remove('filled'));show('passcode')};
+// Tapping the lock screen opens the passcode screen.
+$('lock').addEventListener('click',e=>{entered='';document.querySelectorAll('.passdot').forEach(d=>d.classList.remove('filled'));show('passcode')},true);
+$('cancel').onclick=()=>show('lock');
+document.querySelectorAll('[data-digit]').forEach(b=>b.onclick=()=>{if(entered.length>=4)return;entered+=b.dataset.digit;document.querySelectorAll('.passdot').forEach((d,i)=>d.classList.toggle('filled',i<entered.length));b.animate([{transform:'scale(1)'},{transform:'scale(.92)'},{transform:'scale(1)'}],{duration:170});if(entered.length===4){if(entered==='1107')setTimeout(()=>show('home'),170);else{const dots=$('dots');dots.classList.remove('shake');void dots.offsetWidth;dots.classList.add('shake');setTimeout(()=>{dots.classList.remove('shake');entered='';document.querySelectorAll('.passdot').forEach(d=>d.classList.remove('filled'))},600)}}});
+document.querySelectorAll('[data-app]').forEach(b=>b.onclick=()=>show(({calendar:'calendar',mail:'mail',contacts:'contacts',notes:'notes',photos:'photos',phone:'phone',messages:'messages',stocks:'stocks',safari:'safari',music:'music',x:'x'})[b.dataset.app]));
+// Home app activation guard: route clicks by current and original icon hitboxes before overlays can swallow them.
+const homeAppTargets={calendar:'calendar',mail:'mail',contacts:'contacts',notes:'notes',photos:'photos',phone:'phone',messages:'messages',stocks:'stocks',safari:'safari',music:'music',x:'x'};
+// Hagi Halloween scheduled-message trigger: every home-screen app must be opened once.
+const homeAppsVisited=new Set();
+let hagiHalloweenSequenceStarted=false,hagiHalloweenSequenceFinished=false,hagiFinalReplyUsed=false;
+// Expose read-only trigger state across the isolated Messages app script.
+window.__isHagiHalloweenSequenceFinished=()=>hagiHalloweenSequenceFinished;
+window.__markHagiFinalReplyUsed=()=>{if(hagiFinalReplyUsed)return false;hagiFinalReplyUsed=true;return true};
+const hagiHalloweenMessages=[
+ '진페쨩~ 뭐해',
+ '혹시 나 만나러 오는 중?',
+ '하하, 농담',
+ '사실 이거 예약 메시지야',
+ '오늘 할로윈 이잖아',
+ '기억나려나, 그맘때쯤 할로윈에 다 같이 시부야에서 놀기로 했잖아.',
+ '그래서 서프라이즈~로 예약을 걸어놨지.',
+ '아직 몇 년이나 남았지만,',
+ '뭐, 여전히 우리는 즐거우려나.',
+ '아무튼! 오늘 날씨도 엄청 좋고, 하늘도 예쁘다.',
+ '기분 좋네.',
+ '곧 만나.'
+];
+function startHagiHalloweenSequence(){
+ if(hagiHalloweenSequenceStarted)return;
+ hagiHalloweenSequenceStarted=true;
+ let i=0;
+ const sendNext=()=>{
+  if(i>=hagiHalloweenMessages.length){hagiHalloweenSequenceFinished=true;return;}
+  receiveTriggeredMessage('hagi','하기',hagiHalloweenMessages[i++]);
+  // Set completion as soon as the final scheduled message is delivered,
+  // so an immediate reply can trigger the one-time follow-up message.
+  if(i>=hagiHalloweenMessages.length){hagiHalloweenSequenceFinished=true;return;}
+  setTimeout(sendNext,1400);
+ };
+ setTimeout(sendNext,500);
+}
+document.addEventListener('click',e=>{
+ if(current!=='home')return;
+ const home=document.getElementById('home');if(!home)return;
+ const buttons=[...home.querySelectorAll('.hit[data-app]')];
+ let match=buttons.find(b=>e.target===b||b.contains(e.target));
+ if(!match){
+   const hr=home.getBoundingClientRect();
+   match=buttons.find(b=>{const r=b.getBoundingClientRect();if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)return true;const q=(b.dataset.defaultHit||'').split(',').map(Number);if(q.length!==4||q.some(n=>!Number.isFinite(n)))return false;const x=hr.left+hr.width*q[0]/100,y=hr.top+hr.height*q[1]/100,w=hr.width*q[2]/100,h=hr.height*q[3]/100;return e.clientX>=x&&e.clientX<=x+w&&e.clientY>=y&&e.clientY<=y+h;});
+ }
+ if(match){const appKey=match.dataset.app;const target=homeAppTargets[appKey];if(target){homeAppsVisited.add(appKey);e.preventDefault();e.stopImmediatePropagation();show(target);if(homeAppsVisited.size>=Object.keys(homeAppTargets).length)startHagiHalloweenSequence();}}
+},true);
+
+document.querySelectorAll('[data-mail]').forEach(b=>b.onclick=()=>show(b.dataset.mail));
+const mailDetailImages=['mail-message-detail.png','mail-message-detail2.png','mail-message-detail3.png','mail-message-detail4.png','mail-message-detail5.png','mail-message-detail6.png','mail-message-detail7.png'];
+let mailReadState=[false,true,false,false,false,false,false];
+function renderMailReadDots(){document.querySelectorAll('#mail-all .mail-unread-dot').forEach(b=>{const i=Number(b.dataset.dotIndex);b.style.background=(i===1||mailReadState[i])?'transparent':'#168bff'})}
+function openMailMessageByIndex(i){const detail=document.querySelector('#mail-message .app-bg');if(!detail)return;detail.src=mailDetailImages[i]||mailDetailImages[0];if(i!==1){mailReadState[i]=true}renderMailReadDots();show('mail-message')}
+document.querySelectorAll('#mail-all .mail-message-row').forEach(b=>b.addEventListener('click',()=>openMailMessageByIndex(Number(b.dataset.mailIndex))));
+renderMailReadDots();document.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>show(b.dataset.back));const mailAllBack=document.querySelector('#mail-all .top-back');if(mailAllBack)mailAllBack.onclick=()=>show('mail');
+document.querySelectorAll('#mail-vip [data-vip-pdf]').forEach(b=>b.addEventListener('click',()=>show('vipmail-message-detail'+(9-Number(b.dataset.vipPdf)))));
+document.querySelectorAll('#mail-drafts [data-open-draft2]').forEach(b=>b.addEventListener('click',()=>show('mail-drafts-2')));
+const draftSendButton=document.getElementById('draftSendButton');
+if(draftSendButton)draftSendButton.addEventListener('click',()=>show('mail-drafts'));
+
+// Home gesture from bottom edge, also supports a drag upward from the home indicator.
+let sy=null,sx=null;
+// Return-home must never fail because an optional keyboard helper is absent.
+function returnHome(e){if(e){e.preventDefault();e.stopPropagation()}if(current==='lock'||current==='passcode')return;try{if(typeof hideKeyboard==='function')hideKeyboard()}catch(_){}try{if(typeof stopCall==='function')stopCall()}catch(_){}show('home')}
+phone.addEventListener('touchstart',e=>{const t=e.touches[0];sy=t.clientY;sx=t.clientX},{passive:true});
+phone.addEventListener('touchend',e=>{if(sy==null)return;const startY=sy,dy=e.changedTouches[0].clientY-startY;const r=phone.getBoundingClientRect();if(startY>r.bottom-r.height*.08&&dy<-25)returnHome();sy=null;sx=null},{passive:true});
+const homeIndicator=$('homeIndicator');
+homeIndicator.addEventListener('click',returnHome,true);
+homeIndicator.addEventListener('pointerdown',e=>{sy=e.clientY;try{homeIndicator.setPointerCapture(e.pointerId)}catch(_){}},{capture:true});
+homeIndicator.addEventListener('pointerup',e=>{returnHome(e);sy=null},{capture:true});
+homeIndicator.addEventListener('touchend',e=>{returnHome(e);sy=null},{capture:true,passive:false});
+// Contacts: individual list rows navigate to detail, while the screenshot is preserved.
+const contactRecords=[
+ {image:'contact-detail3.png',phone:'',message:false},
+ {image:'contact-detail4.png',phone:'010-0022-1107',message:true},
+ {image:'contact-detail5.png',phone:'010-0028-0207',message:true},
+ {image:'contact-detail6.png',phone:'010-0029-0000',message:true},
+ {image:'contact-detail7.png',phone:'010-0026-1207',message:true},
+ {image:'contact-detail8.png',phone:'010-0031-1107',message:true}
+];let activeContactIndex=0;
+function openContact(index){activeContactIndex=index;const record=contactRecords[index];const img=$('contactDetailImage');img.onerror=null;img.onload=null;img.src=new URL(record.image,document.baseURI).href;img.loading='eager';img.decoding='sync';$('contactMessageIcon').style.display=record.message?'block':'none';$('contactPhoneIcon').style.display=record.phone?'block':'none';show('contact-detail');$('contactDetailScroll').scrollTop=0}
+const cr=$('contactRows');const contactRowTargets=[{top:18.5,height:7.5,index:0},{top:33.5,height:7.2,index:1},{top:42.5,height:7.2,index:2},{top:51.5,height:7.2,index:3},{top:61.0,height:7.2,index:4},{top:70.5,height:7.2,index:5}];for(const row of contactRowTargets){let b=document.createElement('button');b.className='hit';b.style.cssText=`left:17%;top:${row.top}%;width:77%;height:${row.height}%`;b.setAttribute('aria-label','연락처 '+(row.index+1));b.onclick=()=>openContact(row.index);cr.appendChild(b)}
+// Notes and call recordings: four matching transcript/player screens.
+const noteTexts={
+ 'note-call':['그쪽은 벌써 끝난 거야?','그래~','3분 안에 해결하고도 남는다. 맞지?','칫,','아하하하, 그쪽은 어때?','여기? 여긴 3분 안에 도저히 해결 못할 거 같은데..','아무래도 이쪽에 설치한게 진짠 거 같애','그런데 너 보호복은 제대로 입고 있는 거야?','아하하, 그런 거 입고 있다간 아마 더워서 못 살걸?','너 미쳤어? 죽고 싶냐고!','뭐, 그때는 네가 대신 복수해 줘.','하하하하, 농담이야, 농담.','니가 한턱 사겠다는데 서둘러 끝내고 달려가야지.','뭐야?','모두 도망쳐! 도망치라고!','타이머가 다시 살아났어!'],
+ 'note-call2':['진페짱~ 오늘 온다며. 어디야?','왜 이렇게 보채? 아직 가고 있어.','뭐? 아직 오는 길이라고? 그러게 내가 일찍 마무리하라고 했잖아.','빨리 와! 누나가 또 요리를 한다고. 제발 같이 먹어 줘.','이봐! 켄지!','으아, 빨리 와!'],
+ 'note-call3':['이봐, 하기. 어디야?','진페이짱~ 메일 봤어?','그래, 늘 보던 거기서 보자고!'],
+ 'note-call4':['네, 아버지. 지금 들어가려고요. 필요한 거 있으세요?','아니다. 뉴스 보니까 걱정이 좀 되더구나. 조심히 와라.','네, 너무 걱정 마세요.']
+};
+// note-call timing values are elapsed seconds from the clip's 26-second start.
+// The 8th and 15th sentences contain separately timed phrase changes.
+const callTranscriptSegments=[
+ {start:0,text:'그쪽은 벌써 끝난 거야?'},
+ {start:2,text:'그래~'},
+ {start:3,text:'3분 안에 해결하고도 남는다. 맞지?'},
+ {start:7,text:'칫,'},
+ {start:8,text:'아하하하, 그쪽은 어때?'},
+ {start:10,text:'여기? 여긴 3분 안에 도저히 해결 못할 거 같은데..'},
+ {start:13.8,text:'아무래도 이쪽에 설치한게 진짠 거 같애'},
+ {start:17.2,text:'그런데 너',line:7},
+ {start:19,text:'보호복은 제대로 입고 있는 거야?',line:7},
+ {start:21,text:'아하하, 그런 거 입고 있다간 아마 더워서 못 살걸?'},
+ {start:25,text:'너 미쳤어? 죽고 싶냐고!'},
+ {start:28,text:'뭐, 그때는 네가 대신 복수해 줘.'},
+ {start:31,text:'하하하하, 농담이야, 농담.'},
+ {start:34,text:'니가 한턱 사겠다는데 서둘러 끝내고 달려가야지.'},
+ {start:39,text:'뭐야?'},
+ {start:40,text:'모두 도망쳐!',line:14},
+ {start:42,text:'도망치라고!',line:14},
+ {start:45,text:'타이머가 다시 살아났어!'}
+];
+let noteDraft='벌써 4년이네. 보고싶다.';
+const noteInput=$('noteText');
+function resizeNoteInput(){noteInput.style.height='auto';noteInput.style.height=Math.max(noteInput.scrollHeight,30)+'px'}
+noteInput.value=noteDraft;
+noteInput.addEventListener('input',resizeNoteInput);
+$('openNormalNote').onclick=()=>{noteInput.value=noteDraft;resizeNoteInput();show('note-edit')};
+document.querySelector('#note-edit .top-back').addEventListener('click',()=>{noteDraft=noteInput.value;show('notes')});
+
+$('openCallNote').onclick=()=>{show('note-call');resetCallFor('note-call')};$('openCallNote2').onclick=()=>{show('note-call2');resetCallFor('note-call2')};$('openCallNote3').onclick=()=>{show('note-call3');resetCallFor('note-call3')};$('openCallNote4').onclick=()=>{show('note-call4');resetCallFor('note-call4')};
+const callStates={}; let activeCallId='note-call';
+function escapeCallText(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function renderCallSegment(segment,index){return `<span class="call-segment" data-segment-index="${index}">${escapeCallText(segment.text).split(/(\s+)/).map(part=>/^\s+$/.test(part)?part.replace(/ /g,'&nbsp;'):part?`<span class="call-word">${part}</span>`:'').join('')}</span>`}
+function setupCallScreen(screen){const id=screen.id, transcript=screen.querySelector('.call-transcript');if(transcript){if(id==='note-call'){const grouped=[];callTranscriptSegments.forEach((seg,i)=>{const group=seg.line===undefined?`single-${i}`:`line-${seg.line}`;let item=grouped.find(x=>x.group===group);if(!item){item={group,html:''};grouped.push(item)}item.html+=renderCallSegment(seg,i)});transcript.innerHTML=grouped.map(item=>`<div class="call-line">${item.html}</div>`).join('')}else{transcript.innerHTML=noteTexts[id].map(t=>`<div class="call-line">${escapeCallText(t).split(/(\s+)/).map(part=>/^\s+$/.test(part)?part.replace(/ /g,'&nbsp;'):part?`<span class="call-word">${part}</span>`:'').join('')}</div>`).join('')}}callStates[id]={seconds:0,playing:false,interval:null};
+ screen.querySelector('.call-list-back').style.cssText='position:absolute;right:3%;top:3%;width:12%;height:5%;z-index:10';
+ screen.querySelector('.call-list-back').onclick=()=>{stopCallFor(id);show('notes')};
+ // All four recordings share one typography baseline. Styling changes are made through the main visual edit mode, not an always-visible popup.
+ if(transcript){transcript.style.fontFamily='Arial, sans-serif';transcript.style.fontSize='5.2cqw';transcript.style.fontWeight='400';transcript.style.color='#888888';transcript.style.textAlign='center';transcript.style.lineHeight='1.2';transcript.style.overflowY=id==='note-call'?'hidden':'hidden';}
+ screen.querySelector('.call-play').onclick=()=>toggleCallFor(id);screen.querySelector('.call-reset').onclick=e=>e.preventDefault();screen.querySelector('.call-forward').onclick=e=>e.preventDefault();
+}
+function fmtTime(t){let m=Math.floor(t/60),s=Math.floor(t%60),cs=Math.floor((t%1)*100);return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(cs).padStart(2,'0')}`}
+const callDurations={'note-call':48,'note-call2':null,'note-call3':7,'note-call4':10};
+function getCallDuration(id){if(callDurations[id]!==null&&callDurations[id]!==undefined)return callDurations[id];return Math.max(10,noteTexts[id].join(' ').trim().split(/\s+/).length*.42)}
+function updateCallFor(id){const screen=$(id),state=callStates[id];if(!screen||!state)return;const duration=getCallDuration(id),progress=Math.max(0,Math.min(1,state.seconds/duration));screen.querySelector('.call-timer').textContent=fmtTime(state.seconds).slice(0,5);const tr=screen.querySelector('.call-transcript'),words=[...screen.querySelectorAll('.call-transcript .call-word')];let current=null;
+if(id==='note-call'){
+ const segments=[...screen.querySelectorAll('.call-transcript .call-segment')];let activeIndex=0;
+ for(let i=0;i<callTranscriptSegments.length;i++){if(state.seconds>=callTranscriptSegments[i].start)activeIndex=i;else break;}
+ segments.forEach((seg,i)=>{const active=i===activeIndex;seg.querySelectorAll('.call-word').forEach(word=>word.classList.toggle('current',active));});
+ current=segments[activeIndex]?.querySelector('.call-word')||null;
+}else{
+ const idx=words.length?Math.min(words.length-1,Math.floor(progress*words.length)):0;
+ words.forEach((el,i)=>el.classList.toggle('current',i===idx));current=words[idx]||null;
+}
+if(state.playing&&current&&tr){const trRect=tr.getBoundingClientRect(),wordRect=current.getBoundingClientRect();const desiredTop=tr.scrollTop+(wordRect.top-trRect.top)-tr.clientHeight*0.42;tr.scrollTo({top:Math.max(0,desiredTop),behavior:'auto'});}const icon=screen.querySelector('.call-play-icon');icon.src=state.playing?'st.png':'pl.png';}
+let youtubeApiLoading=false,youtubeApiCallbacks=[];
+function ensureYouTubeIframeAPI(callback){if(window.YT&&window.YT.Player){callback();return}youtubeApiCallbacks.push(callback);if(youtubeApiLoading)return;youtubeApiLoading=true;const prior=window.onYouTubeIframeAPIReady;window.onYouTubeIframeAPIReady=function(){if(typeof prior==='function')try{prior()}catch(e){};const callbacks=youtubeApiCallbacks.splice(0);callbacks.forEach(fn=>{try{fn()}catch(e){}})};if(!document.querySelector('script[data-shared-youtube-iframe-api]')){const script=document.createElement('script');script.src='https://www.youtube.com/iframe_api';script.async=true;script.dataset.sharedYoutubeIframeApi='1';document.head.appendChild(script)}}
+let callRecordingPlayer=null,callRecordingPlayerReady=false,callRecordingPendingPlay=false,callRecordingPendingSeek=null,callRecordingApiRequested=false;
+function loadCallRecordingAPI(){callRecordingApiRequested=true;ensureYouTubeIframeAPI(createCallRecordingPlayer)}
+function createCallRecordingPlayer(){if(callRecordingPlayer||!window.YT||!window.YT.Player)return;let frame=document.getElementById('callRecordingYT');if(!frame)return;const host=document.createElement('div');host.id='callRecordingYT';host.style.cssText='position:fixed;width:200px;height:200px;opacity:.01;pointer-events:none;border:0;left:-220px;top:0';frame.replaceWith(host);callRecordingPlayer=new YT.Player('callRecordingYT',{width:'200',height:'200',videoId:'fV4H5eVlsAc',playerVars:{autoplay:0,controls:0,playsinline:1,start:26,enablejsapi:1,origin:location.origin},events:{onReady:function(e){callRecordingPlayerReady=true;try{e.target.pauseVideo()}catch(err){}if(callRecordingPendingSeek!==null){const target=callRecordingPendingSeek;callRecordingPendingSeek=null;try{e.target.cueVideoById({videoId:'fV4H5eVlsAc',startSeconds:target})}catch(err){}}if(callRecordingPendingPlay&&current==='note-call'){try{e.target.playVideo()}catch(err){callRecordingPendingPlay=false;try{e.target.pauseVideo()}catch(ignore){}}}else{callRecordingPendingPlay=false;try{e.target.pauseVideo()}catch(err){}}},onStateChange:function(e){if(e.data===YT.PlayerState.PLAYING)callRecordingPendingPlay=false},onError:function(){callRecordingPlayerReady=false}}})}
+function callRecordingCommand(func,args=[]){const frame=document.getElementById('callRecordingYT');if(!frame)return;if(func==='pauseVideo'){callRecordingPendingPlay=false;if(!callRecordingPlayerReady||!callRecordingPlayer)return;try{callRecordingPlayer.pauseVideo()}catch(e){}return;}if(func==='playVideo'){callRecordingPendingPlay=true;loadCallRecordingAPI();if(window.YT&&window.YT.Player)createCallRecordingPlayer();if(callRecordingPlayerReady&&callRecordingPlayer){callRecordingPendingPlay=false;if(callRecordingPendingSeek!==null){callRecordingPlayer.seekTo(callRecordingPendingSeek,true);callRecordingPendingSeek=null}try{callRecordingPlayer.playVideo()}catch(e){callRecordingPendingPlay=true}}return;}if(func==='cueTo'){const target=Number(args[0])||0;callRecordingPendingPlay=false;if(!callRecordingPlayerReady||!callRecordingPlayer){callRecordingPendingSeek=target;loadCallRecordingAPI();return;}try{callRecordingPlayer.pauseVideo();callRecordingPlayer.cueVideoById({videoId:'fV4H5eVlsAc',startSeconds:target})}catch(e){}return;}if(func==='seekTo'){const target=Number(args[0])||0;if(!callRecordingPlayerReady||!callRecordingPlayer){callRecordingPendingSeek=target;return;}try{callRecordingPlayer.seekTo(target,!!args[1])}catch(e){}return;}if(!callRecordingPlayerReady||!callRecordingPlayer)return;try{callRecordingPlayer[func](...(args||[]))}catch(e){}}
+function stopCallFor(id){if(id==='note-call')callRecordingCommand('pauseVideo');const st=callStates[id];if(!st)return;if(st.interval)clearInterval(st.interval);st.interval=null;st.playing=false;updateCallFor(id)}
+function resetCallFor(id){stopCallFor(id);callStates[id].seconds=0;const tr=$(id).querySelector('.call-transcript');if(tr)tr.scrollTop=0;updateCallFor(id);if(id==='note-call')callRecordingCommand('cueTo',[26])}
+function toggleCallFor(id){const st=callStates[id];if(st.playing){stopCallFor(id);return}let restartFromClipStart=false,callRecordingNeedsRestartSeek=false;if(id==='note-call'&&(st.seconds>=getCallDuration(id)||st.seconds===0)){callRecordingNeedsRestartSeek=st.seconds>=getCallDuration(id);st.seconds=0;restartFromClipStart=true;const tr=$(id).querySelector('.call-transcript');if(tr)tr.scrollTop=0;}if(id==='note-call'){if(restartFromClipStart&&callRecordingNeedsRestartSeek)callRecordingCommand('seekTo',[26,true]);callRecordingCommand('playVideo')}st.playing=true;updateCallFor(id);st.interval=setInterval(()=>{st.seconds=Math.min(getCallDuration(id),st.seconds+0.05);updateCallFor(id);if(st.seconds>=getCallDuration(id))stopCallFor(id)},50)}
+document.querySelectorAll('#note-call2 .call-transcript, #note-call3 .call-transcript, #note-call4 .call-transcript').forEach(el=>{el.contentEditable='false';el.setAttribute('spellcheck','false');el.setAttribute('aria-readonly','true');});
+document.querySelectorAll('.call-note-screen').forEach(setupCallScreen);
+// Photos: 3x4 independent hit zones; photo 1 keeps the original detail image, photos 2-12 use their matching supplied files.
+const ph=$('photoHits');const photoDetailImage=document.querySelector('#photo-detail .app-bg');for(let i=0;i<12;i++){let b=document.createElement('button');b.className='hit';let col=i%3,row=Math.floor(i/3);b.style.cssText=`left:${col*33.333}%;top:${8+row*19.0}%;width:33.333%;height:18.5%`;b.setAttribute('aria-label','사진 '+(i+1));b.onclick=()=>{activePhoto=i;const targetPhotoSrc=i===0?'photo-detail.png':`photo-detail${i+1}.png`;if(photoDetailImage.getAttribute('src')!==targetPhotoSrc){photoDetailImage.style.visibility='hidden';photoDetailImage.onload=()=>{photoDetailImage.style.visibility='visible'};photoDetailImage.onerror=()=>{photoDetailImage.style.visibility='visible'};photoDetailImage.src=targetPhotoSrc}else{photoDetailImage.style.visibility='visible'}show('photo-detail');const ov=$('photoOverlay');ov.innerHTML=''};ph.appendChild(b)}
+// Calendar: display the supplied calendar image at its original 376×2047 px size inside the existing vertical scroller.
+const stack=$('calendarStack');stack.style.height='auto';stack.style.minHeight='0';stack.style.display='block';stack.innerHTML='';const calendarImage=document.createElement('img');calendarImage.src='calendar.png';calendarImage.alt='달력';calendarImage.style.cssText='display:block;width:100%;height:auto;max-width:100%;flex:none;';stack.appendChild(calendarImage);const calendarHeader=$('calendarFixedHeader');function sizeCalendarAssets(){const w=$('calendar').clientWidth||376;calendarImage.style.width=w+'px';calendarImage.style.height=(w*2047/376)+'px';calendarImage.style.maxWidth='none';calendarHeader.style.width=w+'px';calendarHeader.style.height=(w*113/376)+'px';}sizeCalendarAssets();window.addEventListener('resize',sizeCalendarAssets);
+
+// Phone app: isolated implementation. Other app flows remain unchanged.
+const phoneContacts=[
+ {index:0,name:'마츠다 진페이',phone:'',image:'contact-detail3.png',avatar:'uk.png'},
+ {index:1,name:'하기',phone:'010-0022-1107',image:'hg.png',avatar:'hg.png'},
+ {index:2,name:'반장',phone:'010-0028-0207',image:'contact-detail5.png',avatar:'bj.png'},
+ {index:3,name:'제로',phone:'010-0029-0000',image:'contact-detail6.png',avatar:'zr.png'},
+ {index:4,name:'히로',phone:'010-0026-1207',image:'contact-detail7.png',avatar:'hr.png'},
+ {index:5,name:'치하야',phone:'010-0031-1107',image:'contact-detail8.png',avatar:'ch.png'}
+];
+const phoneInitialCalls=[
+ {name:'070-0000-0000',phone:'070-0000-0000',type:'missed',date:'2023.10.31',contactIndex:null,badgeId:'initial-missed-070'},
+ {name:'치하야',phone:'010-0031-1107',type:'missed',date:'2023.10.31',contactIndex:5,badgeId:'initial-missed-chihaya'},
+ {name:'기동대',phone:'',type:'outgoing',date:'2023.10.22',contactIndex:null},
+ {name:'경시청 인사 담당',phone:'',type:'outgoing',date:'2023.10.20',contactIndex:null},
+ {name:'경시청 인사 담당',phone:'',type:'outgoing',date:'2023.10.20',contactIndex:null},
+ {name:'아버지',phone:'',type:'outgoing',date:'2023.10.15',contactIndex:null},
+ {name:'아버지',phone:'',type:'missed',date:'2023.10.15',contactIndex:null},
+ {name:'하기',phone:'010-0022-1107',type:'outgoing',date:'2019.11.7',contactIndex:1,hagiHistorical:true}
+];
+let phoneCallHistory=phoneInitialCalls.map(x=>({...x}));
+let selectedCallRecord=null;
+let activePhoneCall=null;
+let callEndTimer=null, callConnectTimer=null, callTimerInterval=null, callElapsed=0;
+let ringAudioContext=null, ringNodes=[], ringLoopTimer=null, phoneMusicWasPlaying=false;
+function stopRingTone(){
+ if(ringLoopTimer)clearInterval(ringLoopTimer);ringLoopTimer=null;
+ try{ringNodes.forEach(n=>{try{n.stop()}catch(e){}})}catch(e){}
+ ringNodes=[];if(ringAudioContext){try{ringAudioContext.close()}catch(e){}ringAudioContext=null}
+}
+function playRingTone(){
+ stopRingTone();
+ const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+ try{
+  ringAudioContext=new AC();
+  const ctx=ringAudioContext;
+  const playPair=(start,duration,freq)=>{
+   [freq,freq+35].forEach(f=>{const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type='sine';osc.frequency.value=f;gain.gain.setValueAtTime(0,ctx.currentTime+start);gain.gain.linearRampToValueAtTime(.07,ctx.currentTime+start+.04);gain.gain.setValueAtTime(.07,ctx.currentTime+start+duration-.04);gain.gain.linearRampToValueAtTime(0,ctx.currentTime+start+duration);osc.connect(gain);gain.connect(ctx.destination);osc.start(ctx.currentTime+start);osc.stop(ctx.currentTime+start+duration+.02);ringNodes.push(osc)})
+  };
+  const cycle=()=>{if(!ringAudioContext)return;playPair(0,.42,440);playPair(.62,.42,440)};
+  cycle();ringLoopTimer=setInterval(cycle,3000);
+ }catch(e){}
+}
+function stopPhoneCallTimers(){
+ if(callEndTimer)clearTimeout(callEndTimer);if(callConnectTimer)clearTimeout(callConnectTimer);if(callTimerInterval)clearInterval(callTimerInterval);
+ callEndTimer=callConnectTimer=callTimerInterval=null;stopRingTone();
+}
+function fmtCallDuration(sec){return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0')}
+function renderRecentCalls(){
+ const host=$('phoneRecentRows');if(!host)return;host.innerHTML='';
+ phoneCallHistory.forEach((rec,idx)=>{
+  const row=document.createElement('div');row.className='phone-row';
+  const icon=document.createElement('img');icon.className='phone-avatar';const cinfo=Number.isInteger(rec.contactIndex)?phoneContacts[rec.contactIndex]:null;icon.src=cinfo?.avatar||'uk.png';icon.alt='';
+  const main=document.createElement('button');main.className='phone-row-main';main.setAttribute('aria-label',(rec.name||rec.phone)+' 전화하기');
+  const name=document.createElement('span');name.className='phone-row-name'+(rec.type==='missed'?' missed':'');name.textContent=rec.name||rec.phone;
+  const sub=document.createElement('span');sub.className='phone-row-sub';
+  const incoming=(rec.type==='missed'||rec.type==='incoming');
+  const arrow=document.createElement('span');arrow.textContent=incoming?'↙ ':'↗ ';arrow.style.color='#777';arrow.style.fontWeight='800';
+  const label=document.createElement('span');label.textContent=rec.type==='missed'?'부재중':(incoming?'수신':'발신');
+  sub.append(arrow,label,document.createTextNode(' · '+rec.date));
+  main.append(name,sub);main.onclick=()=>{if(rec.type==='missed'&&rec.badgeId&&window.__clearMissedCallBadge)window.__clearMissedCallBadge(rec.badgeId);startPhoneCall(rec.phone||rec.name, {name:rec.name||rec.phone,contactIndex:rec.contactIndex,historyRecord:rec,hagiHistorical:!!rec.hagiHistorical,origin:'recent'});};
+  const info=document.createElement('button');info.className='phone-info';info.textContent='ⓘ';info.setAttribute('aria-label','연락처 상세');
+  const canInfo=Number.isInteger(rec.contactIndex)&&phoneContacts[rec.contactIndex]?.phone;
+  info.disabled=!canInfo;info.onclick=()=>{if(!canInfo)return;openContact(rec.contactIndex)};
+  row.append(icon,main,info);host.appendChild(row);
+ });
+}
+function addPhoneCallRecord(info,type,duration){
+ const date='2023.10.31';
+ const rec={name:info.name||info.phone,phone:info.phone||'',type,date,contactIndex:Number.isInteger(info.contactIndex)?info.contactIndex:null};
+ if(duration)rec.duration=duration;
+ phoneCallHistory.unshift(rec);if((type==='missed'||type==='incoming')&&window.__registerMissedCall){rec.badgeId=window.__registerMissedCall(rec)}renderRecentCalls();return rec;
+}
+const triggerOnce={chihayaCall:false,hiroCall:false,zeroCall:false,dateCall:false,hiroReply:false,hiroPostCall:false};
+let hiroPostTriggerPending=false,hiroPostTriggerReady=false,hiroIncomingTimeout=null,hiroIncomingMode=false,hiroPostCallbackUsed=false;
+// Chihaya's story state is independent from the other character triggers.
+const chihayaState={firstSmsUsed:false,phoneTriggerUsed:false,phoneEverCalled:false,phoneRequestTimer:null,incomingTimeout:null,missedSmsTimer:null,followupSmsUsed:false};
+window.__chihayaState=chihayaState;
+window.__triggerOnce=triggerOnce;let subtitleQueueTimer=null,notificationHideTimer=null;
+function playMessageDing(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const ac=new AC();const now=ac.currentTime;[0,0.14].forEach((delay,i)=>{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=i?1320:990;g.gain.setValueAtTime(.0001,now+delay);g.gain.exponentialRampToValueAtTime(.12,now+delay+.012);g.gain.exponentialRampToValueAtTime(.0001,now+delay+.18);o.connect(g);g.connect(ac.destination);o.start(now+delay);o.stop(now+delay+.19)});setTimeout(()=>ac.close().catch(()=>{}),600)}catch(e){}}
+function showIOSMessageNotice(name,message,conversationId){const el=$('iosMessageNotice');if(!el)return;el.querySelector('.notice-name').textContent=name||'메시지';el.querySelector('.notice-body').textContent=message||'';el.onclick=()=>{clearTimeout(notificationHideTimer);el.classList.remove('visible');setTimeout(()=>{el.style.display='none';if(window.__openMessageConversation)window.__openMessageConversation(conversationId);else show('messages')},180)};el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click()}};el.style.display='block';requestAnimationFrame(()=>el.classList.add('visible'));playMessageDing();clearTimeout(notificationHideTimer);notificationHideTimer=setTimeout(()=>{el.classList.remove('visible');setTimeout(()=>{if(!el.classList.contains('visible'))el.style.display='none'},450)},5500)}
+window.__showIOSMessageNotice=showIOSMessageNotice;
+function receiveTriggeredMessage(id,name,text){if(window.__receiveMessage)window.__receiveMessage(id,{text,side:'in',date:'2023.10.31'});if(!window.__isConversationOpen||!window.__isConversationOpen(id))showIOSMessageNotice(name,text,id)}
+window.__receiveTriggeredMessage=receiveTriggeredMessage;
+function startCaptionSequence(lines,onDone){clearTimeout(subtitleQueueTimer);const el=$('callCaption');let i=0;const next=()=>{if(!el)return;if(i>=lines.length){el.textContent='';if(onDone)onDone();return}el.classList.add('caption-exit');setTimeout(()=>{el.textContent=lines.slice(i,i+2).join('\n');i+=2;el.classList.remove('caption-exit');subtitleQueueTimer=setTimeout(next,2600)},300)};next()}
+function beginConnectedTimer(){if(callTimerInterval)clearInterval(callTimerInterval);callElapsed=0;$('callStatus').textContent='통화 중';$('callTimer').textContent=fmtCallDuration(callElapsed);callTimerInterval=setInterval(()=>{callElapsed++;if($('callTimer'))$('callTimer').textContent=fmtCallDuration(callElapsed)},1000)}
+function stopMediaForIncomingCall(){
+ // Shared rule for every phone trigger: stop music and all call-recording playback immediately.
+ try{if(typeof pauseMusic==='function')pauseMusic()}catch(e){}
+ try{if(typeof callStates==='object'&&typeof stopCallFor==='function')Object.keys(callStates).forEach(id=>{try{stopCallFor(id)}catch(e){}})}catch(e){}
+ try{if(typeof callRecordingCommand==='function')callRecordingCommand('pauseVideo')}catch(e){}
+ try{if(typeof musicCommand==='function'&&typeof musicYTReady!=='undefined'&&musicYTReady)musicCommand('pauseVideo')}catch(e){}
+ try{if(typeof window.musicWasPlaying!=='undefined')window.musicWasPlaying=false}catch(e){}
+}
+function showHiroIncomingCall(){
+ if(triggerOnce.hiroPostCall)return;
+ triggerOnce.hiroPostCall=true;hiroPostTriggerPending=false;hiroPostTriggerReady=false;stopMediaForIncomingCall();
+ stopPhoneCallTimers();hiroIncomingMode=true;
+ activePhoneCall={number:'010-0026-1207',name:'히로',contactIndex:4,origin:'phone',connected:false,logged:false,incoming:true,hiroPostCall:true};callElapsed=0;
+ $('callNumber').replaceChildren();const n=document.createElement('span');n.className='call-display-name';n.textContent='히로';$('callNumber').appendChild(n);const numberLine=document.createElement('span');numberLine.className='call-display-number';numberLine.textContent='010-0026-1207';$('callNumber').appendChild(numberLine);
+ $('callStatus').textContent='전화 수신 중';$('callCaption').textContent='';$('callTimer').textContent='';$('endCall').style.display='none';$('hiroIncomingControls').style.display='flex';const callBg=$('phoneCallBackground');if(callBg)callBg.src='phone-call-screen.png';show('phone-call');playRingTone();
+ hiroIncomingTimeout=setTimeout(()=>{if(!activePhoneCall||!activePhoneCall.hiroPostCall||activePhoneCall.connected)return;handleHiroIncomingMissed()},5000);
+}
+function handleHiroIncomingMissed(){
+ if(!activePhoneCall||!activePhoneCall.hiroPostCall)return;
+ clearTimeout(hiroIncomingTimeout);hiroIncomingTimeout=null;stopPhoneCallTimers();
+ const c=activePhoneCall;activePhoneCall=null;hiroIncomingMode=false;$('hiroIncomingControls').style.display='none';$('endCall').style.display='';
+ const missedRec=addPhoneCallRecord({name:'히로',phone:'010-0026-1207',contactIndex:4},'missed');missedRec.hiroPostMissed=true;
+ $('callStatus').textContent='부재중 전화';$('callCaption').textContent='';$('callTimer').textContent='';
+ setTimeout(()=>{if(current==='phone-call')show('phone');receiveTriggeredMessage('hiro','히로','전화 안 받네, 나중에 회신 줘.')},250);
+}
+function answerHiroIncoming(){
+ if(!activePhoneCall||!activePhoneCall.hiroPostCall||activePhoneCall.connected)return;
+ clearTimeout(hiroIncomingTimeout);hiroIncomingTimeout=null;stopRingTone();hiroIncomingMode=false;activePhoneCall.connected=true;const callBg=$('phoneCallBackground');if(callBg)callBg.src='phone-screen.png';$('hiroIncomingControls').style.display='none';$('endCall').style.display='';beginConnectedTimer();
+ startCaptionSequence(['마츠다,','괜찮은거지?','그냥 뭐..','너무 무리하지 말라고..','하하, 그래. 다음 달에 보자.'],()=>{if(activePhoneCall&&activePhoneCall.hiroPostCall)finishPhoneCall(false)});
+}
+function rejectHiroIncoming(){handleHiroIncomingMissed()}
+$('hiroAnswer').onclick=()=>{if(activePhoneCall?.chihayaIncoming)answerChihayaIncoming();else answerHiroIncoming()};$('hiroReject').onclick=()=>{if(activePhoneCall?.chihayaIncoming)rejectChihayaIncoming();else rejectHiroIncoming()};
+window.__triggerHiroPostCall=function(){
+ if(triggerOnce.hiroPostCall||hiroPostTriggerPending)return;
+ hiroPostTriggerPending=true;hiroPostTriggerReady=false;
+ setTimeout(()=>{
+  if(!hiroPostTriggerPending)return;
+  hiroPostTriggerReady=true;
+  stopMediaForIncomingCall();
+  if(!activePhoneCall)showHiroIncomingCall();
+ },3000);
+};
+function showChihayaIncomingCall(){
+ if(chihayaState.phoneTriggerUsed)return;
+ chihayaState.phoneTriggerUsed=true;chihayaState.phoneEverCalled=true;triggerOnce.chihayaCall=true;
+ if(chihayaState.phoneRequestTimer){clearTimeout(chihayaState.phoneRequestTimer);chihayaState.phoneRequestTimer=null;}
+ stopMediaForIncomingCall();stopPhoneCallTimers();
+ activePhoneCall={number:'010-0031-1107',name:'치하야',contactIndex:5,origin:'phone',connected:false,logged:false,incoming:true,chihayaIncoming:true};callElapsed=0;
+ $('callNumber').replaceChildren();const n=document.createElement('span');n.className='call-display-name';n.textContent='치하야';$('callNumber').appendChild(n);const numberLine=document.createElement('span');numberLine.className='call-display-number';numberLine.textContent='010-0031-1107';$('callNumber').appendChild(numberLine);
+ $('callStatus').textContent='전화 수신 중';$('callCaption').textContent='';$('callTimer').textContent='';$('endCall').style.display='none';$('hiroIncomingControls').style.display='flex';
+ const callBg=$('phoneCallBackground');if(callBg)callBg.src='phone-call-screen.png';show('phone-call');playRingTone();
+ chihayaState.incomingTimeout=setTimeout(()=>{if(!activePhoneCall||!activePhoneCall.chihayaIncoming||activePhoneCall.connected)return;handleChihayaIncomingMissed()},5000);
+}
+function handleChihayaIncomingMissed(){
+ if(!activePhoneCall||!activePhoneCall.chihayaIncoming)return;
+ clearTimeout(chihayaState.incomingTimeout);chihayaState.incomingTimeout=null;stopPhoneCallTimers();stopRingTone();
+ const c=activePhoneCall;activePhoneCall=null;$('hiroIncomingControls').style.display='none';$('endCall').style.display='';
+ const rec=addPhoneCallRecord({name:'치하야',phone:'010-0031-1107',contactIndex:5},'missed');rec.chihayaIncomingMissed=true;
+ // A missed incoming call does not consume the one-time conversation trigger,
+ // because the scripted dialogue never played. Allow Matsuda's later call to trigger it.
+ chihayaState.phoneTriggerUsed=false;triggerOnce.chihayaCall=false;
+ $('callStatus').textContent='부재중 전화';$('callCaption').textContent='';$('callTimer').textContent='';
+ if(!chihayaState.missedSmsUsed){chihayaState.missedSmsUsed=true;chihayaState.missedSmsTimer=setTimeout(()=>receiveTriggeredMessage('chihaya','치하야','너 마음대로 해! 👿👿'),3000)}
+ setTimeout(()=>{if(current==='phone-call')show('phone')},250);
+}
+function answerChihayaIncoming(){
+ if(!activePhoneCall||!activePhoneCall.chihayaIncoming||activePhoneCall.connected)return;
+ clearTimeout(chihayaState.incomingTimeout);chihayaState.incomingTimeout=null;stopRingTone();activePhoneCall.connected=true;
+ const callBg=$('phoneCallBackground');if(callBg)callBg.src='phone-screen.png';$('hiroIncomingControls').style.display='none';$('endCall').style.display='';beginConnectedTimer();
+ startCaptionSequence(['마츠다.','잘 지내고 있는 거야?','.....','무슨 말이라도 해....','너란 남자는 정말...','......','난 잘 지내고 있어.','너도 밥 잘 챙겨 먹고,','너무 무리하지 마.'],()=>{if(activePhoneCall&&activePhoneCall.chihayaIncoming){finishPhoneCall(false);setTimeout(()=>receiveTriggeredMessage('chihaya','치하야','잘 챙겨 먹고 다녀. 감기 조심하고.'),20000)}});
+}
+function rejectChihayaIncoming(){handleChihayaIncomingMissed()}
+window.__showChihayaIncomingCall=showChihayaIncomingCall;
+function startPhoneCall(number,opts={}){
+ stopMediaForIncomingCall();
+ const callBg=$('phoneCallBackground');if(callBg)callBg.src='phone-screen.png';
+ stopPhoneCallTimers();
+ const contact=Number.isInteger(opts.contactIndex)?phoneContacts[opts.contactIndex]:null;
+ activePhoneCall={number:String(number||''),name:opts.name||(contact&&contact.name)||String(number||''),contactIndex:opts.contactIndex,historyRecord:opts.historyRecord||null,hagiHistorical:!!opts.hagiHistorical,origin:opts.origin||'keypad',connected:false,logged:false};
+ phoneMusicWasPlaying=!!window.musicWasPlaying;
+ callElapsed=0;
+ const callNumberEl=$('callNumber');callNumberEl.replaceChildren();const callNameLine=document.createElement('span');callNameLine.className='call-display-name';callNameLine.textContent=activePhoneCall.name;callNumberEl.appendChild(callNameLine);const callNumberText=String(activePhoneCall.number||'').trim();if(callNumberText&&callNumberText!==String(activePhoneCall.name||'').trim()){const callNumberLine=document.createElement('span');callNumberLine.className='call-display-number';callNumberLine.textContent=callNumberText;callNumberEl.appendChild(callNumberLine);}
+ $('callStatus').textContent='연결 중';
+ $('callCaption').textContent='';
+ $('callTimer').textContent='';
+ show('phone-call');
+ if(phoneMusicWasPlaying&&typeof pauseMusic==='function')pauseMusic();
+ const isChihayaCall=activePhoneCall.name==='치하야';if(isChihayaCall){chihayaState.phoneEverCalled=true;if(chihayaState.phoneRequestTimer){clearTimeout(chihayaState.phoneRequestTimer);chihayaState.phoneRequestTimer=null;}}const triggerKey=isChihayaCall&&!chihayaState.phoneTriggerUsed?'chihayaCall':activePhoneCall.name==='히로'?'hiroCall':activePhoneCall.name==='제로'?'zeroCall':activePhoneCall.name==='반장'?'dateCall':null;
+ if(opts.historyRecord?.hiroPostMissed&&!hiroPostCallbackUsed){hiroPostCallbackUsed=true;playRingTone();callConnectTimer=setTimeout(()=>{stopRingTone();if(!activePhoneCall)return;activePhoneCall.connected=true;beginConnectedTimer();startCaptionSequence(['마츠다,','괜찮은거지?','그냥 뭐..','너무 무리하지 말라고..','하하, 그래. 다음달에 보자.'],()=>{if(activePhoneCall)finishPhoneCall(false)})},2500);return;}
+ if(triggerKey&&!triggerOnce[triggerKey]){
+  triggerOnce[triggerKey]=true;
+  if(triggerKey==='chihayaCall'){chihayaState.phoneTriggerUsed=true;chihayaState.phoneEverCalled=true;}
+  if(triggerKey==='chihayaCall'||triggerKey==='zeroCall'){
+   // Use the normal outgoing-call sequence: connecting tone first, then the other person answers.
+   playRingTone();
+   callConnectTimer=setTimeout(()=>{
+    stopRingTone();if(!activePhoneCall)return;
+    activePhoneCall.connected=true;beginConnectedTimer();
+    callEndTimer=setTimeout(()=>{
+     if(triggerKey==='chihayaCall'){
+      startCaptionSequence(['마츠다.','잘 지내고 있는 거야?','.....','무슨 말이라도 해....','너란 남자는 정말...','......','난 잘 지내고 있어.','너도 밥 잘 챙겨 먹고,','너무 무리하지 마.'],()=>{if(activePhoneCall)finishPhoneCall(false);setTimeout(()=>receiveTriggeredMessage('chihaya','치하야','잘 챙겨 먹고 다녀. 감기 조심하고'),20000)});
+     }else{
+      startCaptionSequence(['마츠다!','미안! 지금은 통화가 좀 어려워','있다가 다시 회신 줄게.'],()=>finishPhoneCall(false));
+     }
+    },1000);
+   },2500);
+  }else{
+   // Unanswered calls also follow the normal connecting-tone phase before showing unavailable.
+   playRingTone();
+   callConnectTimer=setTimeout(()=>{
+    stopRingTone();if(!activePhoneCall)return;
+    $('callStatus').textContent='연결 불가';$('callTimer').textContent='';
+    if(triggerKey==='dateCall'){
+     // End the unavailable call promptly; deliver the foreman's message 30 seconds after dialing.
+     callEndTimer=setTimeout(()=>finishPhoneCall(true),1100);
+     setTimeout(()=>receiveTriggeredMessage('date','반장','마츠다. 전화했어? 지금 사고 수습 중이라 전화받기가 어려워.'),27500);
+    }else{
+     callEndTimer=setTimeout(()=>{
+      finishPhoneCall(true);
+      if(triggerKey==='hiroCall')receiveTriggeredMessage('hiro','히로','미안, 마츠다. 지금은 전화받기가 좀 곤란해. 무슨 일 있어?');
+     },0);
+    }
+   },2500);
+  }
+  return;
+ }
+ playRingTone();
+ const specialHagi=activePhoneCall.hagiHistorical||activePhoneCall.name==='하기'&&activePhoneCall.historyRecord?.date==='2019.11.7';
+ if(specialHagi){
+  callEndTimer=setTimeout(()=>finishPhoneCall(true),3000);
+  return;
+ }
+ callConnectTimer=setTimeout(()=>{
+  stopRingTone();
+  if(!activePhoneCall)return;
+  activePhoneCall.connected=false;
+  $('callStatus').textContent='연결 불가';
+  callEndTimer=setTimeout(()=>{const chihayaRepeat=activePhoneCall&&activePhoneCall.name==='치하야'&&chihayaState.phoneTriggerUsed;finishPhoneCall(true);if(chihayaRepeat&&!chihayaState.followupSmsUsed){chihayaState.followupSmsUsed=true;setTimeout(()=>receiveTriggeredMessage('chihaya','치하야','미안, 출동해야 해서. 나중에 연락할게.'),0)}},1100);
+ },2500);
+}
+function finishPhoneCall(autoNoAnswer=false){
+ if(!activePhoneCall)return;
+ stopPhoneCallTimers();
+ const c=activePhoneCall;
+ if(c.connected){
+  const duration=fmtCallDuration(callElapsed);
+  if(!c.logged){addPhoneCallRecord({name:c.name,phone:c.number,contactIndex:c.contactIndex},(c.hiroPostCall||c.chihayaIncoming)?'incoming':'outgoing',duration);c.logged=true}
+ }else if(!c.logged){
+  // Incoming calls that are not answered are logged as missed; ordinary outgoing calls remain outgoing.
+  addPhoneCallRecord({name:c.name,phone:c.number,contactIndex:c.contactIndex},c.chihayaIncoming?'missed':'outgoing');c.logged=true
+ }
+ $('callStatus').textContent=autoNoAnswer&&!c.connected?'연결 불가':'통화 종료';
+ $('callCaption').textContent='';
+ $('callTimer').textContent='';
+ activePhoneCall=null;
+ const wasHiroIncoming=!!c.hiroPostCall; const wasChihayaIncoming=!!c.chihayaIncoming; if(wasHiroIncoming||wasChihayaIncoming){$('hiroIncomingControls').style.display='none';$('endCall').style.display='';}
+ const callBg=$('phoneCallBackground');if(callBg)callBg.src='phone-screen.png';
+ const returnScreen=c.origin==='contact'?'contacts':'phone';setTimeout(()=>{show(returnScreen);renderRecentCalls();phoneMusicWasPlaying=false;if(hiroPostTriggerPending&&hiroPostTriggerReady&&!activePhoneCall)showHiroIncomingCall()},700);
+}
+$('endCall').onclick=()=>{if(activePhoneCall?.chihayaIncoming&&!activePhoneCall.connected){handleChihayaIncomingMissed();return}finishPhoneCall(false)};
+document.querySelectorAll('[data-phone-tab]').forEach(b=>{b.onclick=()=>{const owner=b.closest('section.screen');if(!owner||!owner.classList.contains('active')||!['phone','phone-keypad','phone-voicemail'].includes(owner.id))return;show(b.dataset.phoneTab)}});
+$('phoneFavoritesRowToPhone3').onclick=()=>show('phone-contacts');
+$('phoneFavoritesInfoToContact3').onclick=()=>openContact(1);
+$('phoneContactOpen').onclick=()=>{show('contact-detail');$('contactDetailScroll').scrollTop=0};
+$('contactMessageIcon').onclick=()=>{const chatByContact={1:'hagi',2:'date',3:'zero',4:'hiro',5:'chihaya'};const target=chatByContact[activeContactIndex];if(target&&contactRecords[activeContactIndex]?.message&&window.__openMessageConversation)window.__openMessageConversation(target)};
+// Contacts app's call icon routes into the redesigned phone screen and shares call history.
+$('contactPhoneIcon').onclick=()=>{
+ const record=phoneContacts[activeContactIndex]||contactRecords[activeContactIndex];
+ const number=record?.phone;
+ if(number)startPhoneCall(number,{name:record.name||(['마츠다 진페이','하기','반장','제로','히로','치하야'][activeContactIndex]||number),contactIndex:activeContactIndex,origin:'contact'});
+};
+let dial='';const dn=$('dialNumber'),dk=$('dialKeys'),dm=$('dialMatch');
+function getDialMatch(){return phoneContacts.find(c=>c.phone&&c.phone===dial)||null}
+function updateDial(){dn.textContent=dial;const match=getDialMatch();dm.textContent=match?match.name:''}
+for(let n of ['1','2','3','4','5','6','7','8','9','*','0','#']){
+ let b=document.createElement('button');b.className='hit';let i=['1','2','3','4','5','6','7','8','9','*','0','#'].indexOf(n),col=i%3,row=Math.floor(i/3);
+ b.style.cssText=`left:${14+col*25}%;top:${29+row*11.4}%;width:22%;height:9.5%`;
+ b.setAttribute('aria-label',n);b.onclick=()=>{dial+=n;updateDial()};dk.appendChild(b);
+}
+$('dialDelete').onclick=()=>{if(dial.length){dial=dial.slice(0,-1);updateDial()}};
+$('dialCall').onclick=()=>{if(dial){const match=getDialMatch();startPhoneCall(dial,{name:match?.name||dial,contactIndex:match?.index,origin:'keypad'})}};
+renderRecentCalls();
+
+// Voicemail list and sentence-by-sentence playback. No audio file is played.
+const voicemailMessages=[
+ {date:'2019.11.8',text:'마츠다, 이거 보면 연락 남겨 줘.'},
+ {date:'2019.11.30',text:'너 정말 이제 나 안 보려고 그래? 연락 좀 줘.'},
+ {date:'2020.1.1',text:'마츠다, 새해 복 많이 받아. 항상 건강하게 지내.'},
+ {date:'2022.11.7',text:'생각나서 전화했어. 여전히 받지 않네. 밥은 잘 먹고 있는 거야?'}
+];
+const vRows=$('voicemailRows');
+voicemailMessages.forEach((msg,index)=>{
+ const row=document.createElement('div');row.className='phone-row';
+ const icon=document.createElement('img');icon.className='phone-avatar';icon.src='ch.png';icon.alt='';
+ const main=document.createElement('button');main.className='phone-row-main';main.setAttribute('aria-label','치하야 음성 사서함 '+msg.date);
+ const name=document.createElement('span');name.className='phone-row-name';name.textContent='치하야';
+ const sub=document.createElement('span');sub.className='phone-row-sub';sub.textContent=msg.date+' · 1건의 음성 메세지';
+ main.append(name,sub);main.onclick=()=>openVoicemailMessage(index);
+ row.append(icon,main);vRows.appendChild(row);
+});
+let vmIndex=0,vmTimer=null,vmSentence=0,vmPlaying=false;
+function buildVmWave(){const w=$('vmWave');w.innerHTML='';for(let i=0;i<34;i++){const s=document.createElement('span');s.style.height=(18+(i*17%63))+'%';w.appendChild(s)}}
+function stopVmPlayback(){if(vmTimer)clearInterval(vmTimer);vmTimer=null;vmPlaying=false;$('vmWave').classList.remove('playing');$('vmPlay').textContent='▶';}
+function renderVmTranscript(){const msg=voicemailMessages[vmIndex];const parts=msg.text.match(/[^.!?]+[.!?]?/g)||[msg.text];$('vmTranscript').textContent=msg.text;return parts}
+function openVoicemailMessage(index){
+ stopVmPlayback();vmIndex=index;vmSentence=0;
+ $('vmSender').textContent='치하야';$('vmDate').textContent=voicemailMessages[index].date;
+ $('vmTranscript').textContent=voicemailMessages[index].text;buildVmWave();show('phone-voicemail-detail');startVmPlayback();
+}
+function startVmPlayback(){
+ const parts=renderVmTranscript();if(vmSentence>=parts.length)vmSentence=0;
+ vmPlaying=true;$('vmWave').classList.add('playing');$('vmPlay').textContent='Ⅱ';
+ vmTimer=setInterval(()=>{vmSentence++;renderVmTranscript();if(vmSentence>=parts.length)stopVmPlayback()},1700);
+}
+$('vmPlay').onclick=()=>{if(vmPlaying){stopVmPlayback()}else{startVmPlayback()}};
+$('vmBack').onclick=()=>{stopVmPlayback();show('phone-voicemail')};
+$('phone-voicemail-detail').querySelector('.vm-back').onclick=()=>{stopVmPlayback();show('phone-voicemail')};
+// Messages app: isolated behavior. LINE and all other apps retain their existing code.
+ function addBubble(container,text,side){let d=document.createElement('div');d.textContent=text;d.className='bubble-msg '+(side==='right'?'out':'in');container.appendChild(d);container.scrollTop=container.scrollHeight;return d}
+ const mr=$('messageRows');const messagePreviewNodes=[];
+ function buildPreviews(container,store,start,step){}
+ function updatePreview(nodes,text){}
+function sendFromInput(inputId,buttonId){const input=$(inputId);input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();$(buttonId).click()}})}sendFromInput('messageInput','sendMessage');
+$('safariNews').onclick=()=>show('safari-news');$('safariBack').onclick=()=>show('safari');
+// Persistent YouTube player + synchronized mini Dynamic Island. All controls stay in this document across app-screen changes.
+const musicTracks=[
+ {title:'Run to you',artist:'SEVENTEEN',videoId:'cFVwSKW2ySA',start:0,cover:'music-c1.png'},
+ {title:'SODA SODA',artist:'TWS',videoId:'ghsrc0R1A2A',start:12,cover:'music-c2.png'},
+ {title:'Goodbye My Baby',artist:'Jace June',videoId:'xyUmcRkQthk',start:0,cover:'music-c3.png'}
+];
+let musicTrackIndex=0, musicYT=null, musicYTReady=false, musicIslandExpanded=false, musicPendingPlay=false, musicHasStarted=false, musicHasSelectedTrack=false, musicPlaybackInitializedForTrack=false;
+window.musicWasPlaying=false;
+function musicCommand(name,args=[]){if(!musicYT||!musicYTReady)return;try{if(name==='seekTo')musicYT.seekTo(Number(args[0])||0,true);else if(name==='playVideo')musicYT.playVideo();else if(name==='pauseVideo')musicYT.pauseVideo()}catch(e){}}
+function updateMusicUI(){const t=musicTracks[musicTrackIndex];$('musicCover').style.display=musicHasSelectedTrack?'block':'none';$('musicCoverImage').src=t.cover;$('islandTitle').textContent=t.title;$('islandArtist').textContent=t.artist;$('musicPlayImage').src=window.musicWasPlaying?'st.png':'pl.png';$('musicPlay').setAttribute('aria-label',window.musicWasPlaying?'일시정지':'재생');$('islandToggleImage').src=window.musicWasPlaying?'st.png':'pl.png';$('islandToggle').setAttribute('aria-label',window.musicWasPlaying?'일시정지':'재생');$('musicMotion').classList.toggle('playing',window.musicWasPlaying);$('musicIsland').classList.toggle('playing',window.musicWasPlaying);$('musicIsland').classList.toggle('visible',musicHasStarted);$('musicIsland').classList.toggle('expanded',musicIslandExpanded);}
+function ensureMusicYT(){if(musicYT){if(musicYTReady&&musicPendingPlay){musicPendingPlay=false;musicYT.playVideo()}return}ensureYouTubeIframeAPI(()=>{if(musicYT)return;musicYT=new YT.Player('ytPlayer',{width:'200',height:'200',videoId:musicTracks[musicTrackIndex].videoId,playerVars:{autoplay:0,controls:0,playsinline:1,start:musicTracks[musicTrackIndex].start,rel:0,enablejsapi:1,origin:location.origin},events:{onReady:function(e){musicYTReady=true;if(musicPendingPlay&&window.musicWasPlaying){e.target.playVideo();musicPendingPlay=false}updateMusicUI()},onStateChange:function(e){if(e.data===YT.PlayerState.PLAYING){musicPendingPlay=false;window.musicWasPlaying=true;updateMusicUI()}else if(e.data===YT.PlayerState.PAUSED){window.musicWasPlaying=false;updateMusicUI()}},onError:function(){musicYTReady=false;window.musicWasPlaying=false;updateMusicUI()}}})})}
+function selectMusicTrack(index){if(index<0||index>=musicTracks.length)return;musicTrackIndex=index;musicHasSelectedTrack=true;musicHasStarted=false;musicPendingPlay=false;musicPlaybackInitializedForTrack=false;window.musicWasPlaying=false;const t=musicTracks[index];if(musicYT&&musicYTReady){try{musicYT.cueVideoById({videoId:t.videoId,startSeconds:t.start})}catch(e){}}updateMusicUI()}
+function playMusic(){musicHasStarted=true;musicHasSelectedTrack=true;musicPendingPlay=true;updateMusicUI();if(musicYT&&musicYTReady){try{musicYT.playVideo();musicPendingPlay=false}catch(e){musicPendingPlay=true}}else{ensureMusicYT()}}
+function pauseMusic(){musicPendingPlay=false;if(musicYT&&musicYTReady)musicCommand('pauseVideo');window.musicWasPlaying=false;updateMusicUI()}
+function toggleMusicIsland(){musicIslandExpanded=!musicIslandExpanded;updateMusicUI()}
+document.querySelectorAll('[data-music-track]').forEach(b=>b.addEventListener('click',()=>selectMusicTrack(Number(b.dataset.musicTrack))));
+$('musicPlay').addEventListener('click',()=>window.musicWasPlaying?pauseMusic():playMusic());$('islandToggle').addEventListener('click',e=>{e.stopPropagation();window.musicWasPlaying?pauseMusic():playMusic()});$('musicIsland').addEventListener('click',e=>{if(e.target.closest('#islandToggle'))return;toggleMusicIsland()});
+updateMusicUI();
+// Pre-initialize both YouTube players before the first user playback tap.
+loadCallRecordingAPI();
+ensureMusicYT();
+
+// Screen routing and Escape key.
+document.addEventListener('keydown',e=>{if(current==='passcode'&&/^\d$/.test(e.key)){document.querySelector(`[data-digit="${e.key}"]`)?.click()}if(e.key==='Escape'){if(current==='mail-message')show('mail-all');else if(current==='mail-all'||current==='mail-vip'||current==='mail-drafts'||current==='mail-sent'||current==='mail-trash')show('mail');else if(current==='contact-detail')show('contacts');else if(current==='note-edit'||current==='note-call')show('notes');else if(current==='photo-detail')show('photos');else if(current==='phone-call')show('phone');else if(current==='phone-keypad'||current==='phone-favorites'||current==='phone-contacts'||current==='phone-voicemail')show('phone');else if(current==='phone-voicemail-detail')show('phone-voicemail');else if(current==='message-chat')show('messages');else if(current==='safari-news')show('safari');else if(current!=='home'&&current!=='lock'&&current!=='passcode')show('home')}});
+window.__showPhoneScreen=(id)=>show(id); window.__addChatBubble=(container,text,side)=>addBubble(container,text,side); window.__updateChatPreview=(app,text)=>updatePreview(messagePreviewNodes,text);
+})();
+</script>
+
+
+
+<style id="generated-chat-bubbles">
+/* CSS-generated chat bubbles: rounded rectangles without tails. */
+.bubble-msg{
+  position:relative!important; display:flex!important; align-items:center!important; justify-content:center!important;
+  box-sizing:border-box!important; width:max-content!important; max-width:82%!important; min-width:74px!important;
+  min-height:38px!important; height:auto!important; margin:8px 0!important; padding:9px 18px!important;
+  border:0!important; border-image:none!important; background-image:none!important; background-repeat:no-repeat!important;
+  border-radius:22px!important; white-space:pre-wrap!important; overflow-wrap:anywhere!important; word-break:normal!important;
+  line-height:1.3!important; text-align:center!important; z-index:1!important; isolation:isolate!important;
+}
+.bubble-msg.in{margin-right:auto!important;margin-left:0!important;background:#e7e7e9!important;color:#111!important;}
+.bubble-msg.out{margin-left:auto!important;margin-right:0!important;background:#60aef5!important;color:#fff!important;}
+.bubble-msg:before{content:none!important;display:none!important;}
+/* Keep text editing and resize handles independent of bubble styling. */
+
+</style>
+
+
+<style id="v11-message-tweaks">
+.bubble-msg{font-size:16px!important;font-weight:700!important;line-height:1.25!important;padding:6px 14px!important;min-width:0!important;min-height:32px!important;border-radius:18px!important;}
+.conversation-previews{position:absolute;inset:0;pointer-events:none;z-index:3;color:#888;font-size:2.5cqw;line-height:1.15;}
+/* App-scoped previews: never leak message/LINE preview text onto home or another app. */
+#messagePreviews,#removedLinePreviews{display:none!important;}
+#messages.active #messagePreviews,#line-list.active #removedLinePreviews{display:block!important;}
+#messages:not(.active) #messagePreviews,#line-list:not(.active) #removedLinePreviews{display:none!important;}
+
+.conversation-preview{position:absolute;left:19%;width:66%;height:3.2%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:left;font-weight:400;}
+#messagePreviews .conversation-preview{left:22%;}
+
+</style>
+
+
+
+
+
+<style id="v41-responsive-text-only">
+/* Scale text with the phone's own width. Preserve original bubble geometry, spacing and border-image artwork. */
+#noteText, .note-text, textarea.note-editor, .note-editor textarea {
+  font-size: 3.2cqw !important;
+  line-height: 1.45 !important;
+}
+#messageInput, #chatInput {
+  font-size: 3.5cqw !important;
+  line-height: 1.25 !important;
+}
+.bubble-msg, .message-bubble {
+  font-size: 4cqw !important;
+  line-height: 1.25 !important;
+}
+</style>
+
+<style id="x-light-ui">
+#x .xapp{position:absolute;left:0;right:0;top:5.5%;bottom:0;display:flex;flex-direction:column;background:#fff;border-top:0;box-shadow:none;color:#0f1419;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;overflow:hidden}
+#x .xtop{height:10%;min-height:42px;display:flex;align-items:center;gap:10px;padding:0 4%;border-bottom:1px solid #eff3f4;flex-shrink:0;background:#fff}
+#x .xbrand{font-size:6cqw;font-weight:800;flex:1;text-align:center}#x .xbtn{border:0;background:transparent;color:#0f1419;font-size:4.3cqw;padding:7px;cursor:pointer}
+#x .xfeed{overflow:auto;flex:1;scrollbar-width:none;background:#fff;overflow-anchor:none;scroll-behavior:auto}#x .xfeed::-webkit-scrollbar{display:none}
+#x .xpost{padding:3.4% 4%;scroll-margin-top:0;border-bottom:1px solid #eff3f4;display:flex;gap:3%;cursor:pointer;background:#fff}#x .xavatar{width:13cqw;height:13cqw;max-width:48px;max-height:48px;border-radius:50%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:4cqw;font-weight:700;color:#0f1419;border:1px solid #f0f0f0}#x .xpostmain{min-width:0;flex:1}#x .xmeta{color:#536471;font-size:2.8cqw;margin-bottom:1.5%}#x .xname{color:#0f1419;font-weight:700}#x .xhandle{color:#536471}#x .xtext{font-size:4cqw;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;color:#0f1419}#x .xactions{display:flex;justify-content:space-between;color:#536471;margin-top:3%;max-width:100%}#x .xaction{border:0;background:transparent;color:inherit;padding:2px 4px;font-size:2.9cqw;cursor:pointer}#x .xaction.liked{color:#f91880}
+#x .xaction-icon{display:inline-block;width:19px;height:19px;object-fit:contain;object-position:center;vertical-align:middle;flex:none} #x .xaction{flex-shrink:0;white-space:nowrap}
+#x .xaction{display:inline-flex;align-items:center;gap:5px;min-width:32px;justify-content:center}
+#x .xaction:disabled{opacity:.5;cursor:default}
+#x .xreply-screen{position:absolute;inset:0;background:#fff;display:flex;flex-direction:column;overflow:hidden}
+#x .xreply-top{height:58px;min-height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 4%;background:#fff}
+#x .xreply-cancel{border:0;background:transparent;color:#0f1419;font-size:16px;padding:8px 0}
+#x .xreply-publish{border:0;border-radius:24px;background:#1d9bf0;color:#fff;font-weight:700;padding:9px 17px;font-size:14px}
+#x .xreply-publish:disabled{opacity:.48}
+#x .xreply-content{padding:8px 4%;overflow:auto;flex:1;background:#fff}
+#x .xreply-source{display:flex;gap:12px;position:relative;padding-bottom:20px}
+#x .xreply-source:after{content:"";position:absolute;left:15px;top:46px;bottom:0;width:2px;background:#cfd9de}
+#x .xreply-source .xavatar,#x .xreply-entry .xavatar{width:32px;height:32px;min-width:32px;font-size:12px}
+#x .xreply-source-main{min-width:0;flex:1;padding-right:2px}
+#x .xreply-source-meta{font-size:13px;line-height:1.45;color:#536471}
+#x .xreply-source-meta strong{color:#0f1419}
+#x .xreply-source-text{font-size:16px;line-height:1.45;color:#0f1419;margin-top:2px;white-space:pre-wrap;overflow-wrap:anywhere}
+#x .xreply-source-image{width:100px;height:100px;object-fit:cover;border-radius:12px;margin-top:8px;float:right}
+#x .xreply-to{margin:0 0 10px 44px;color:#536471;font-size:13px}
+#x .xreply-to span{color:#1d9bf0}
+#x .xreply-entry{display:flex;gap:12px;align-items:flex-start;padding-top:2px}
+#x .xreply-entry textarea{flex:1;min-width:0;min-height:80px;resize:none;border:0;outline:0;background:#fff;color:#0f1419;font:inherit;font-size:16px;line-height:1.45;padding:3px 0}
+#x .xreply-entry textarea::placeholder{color:#71767b}
+#x .xreply-bottom{border-top:1px solid #eff3f4;padding:10px 4%;color:#1d9bf0;font-size:13px}
+
+#x .xcompose-screen{display:flex;gap:3%;padding:5%;align-items:flex-start;background:#fff;min-height:45%;}#x .xcompose-screen textarea{flex:1;min-width:0;min-height:180px;resize:none;border:0;outline:0;background:#fff;color:#0f1419;font:inherit;font-size:4cqw;line-height:1.5;}#x .xfloat-compose{position:absolute;right:5%;bottom:10%;width:14cqw;height:14cqw;max-width:58px;max-height:58px;border-radius:50%;font-size:7cqw;box-shadow:0 2px 7px #0003;z-index:5;padding:0;display:flex;align-items:center;justify-content:center;}#x .xreply-screen .xreply-top{position:relative;}
+#x .xcompose{display:flex;gap:3%;padding:3%;border-bottom:1px solid #eff3f4;background:#fff}#x .xcompose textarea,#x #xreplyText{flex:1;min-width:0;resize:none;background:#fff;color:#0f1419;border:0;outline:none;font:inherit;min-height:45px}#x .xprimary{background:#1d9bf0;color:#fff;border:0;border-radius:99px;font-weight:700;padding:7px 14px;align-self:flex-end;cursor:pointer}#x .xnav{height:8%;min-height:38px;border-top:1px solid #eff3f4;display:flex;justify-content:space-around;align-items:center;flex-shrink:0;background:#fff}#x .xnav button{font-size:5cqw;display:flex;align-items:center;justify-content:center;padding:0}#x .xnav button img{width:7cqw;height:7cqw;max-width:30px;max-height:30px;object-fit:contain;display:block}
+#x .xprofilehead{height:16%;min-height:100px;background:#fff url("mtdhd.png") center/cover no-repeat;position:relative;flex-shrink:0}#x .xprofileinfo{position:relative;padding:58px 4% 5%;border-bottom:1px solid #eff3f4;background:#fff;font-size:1.08em}#x .xprofileinfo>.xavatar{position:absolute;top:-48px;left:4%;transform:none;width:96px;height:96px;min-width:96px;min-height:96px;max-width:none;max-height:none;aspect-ratio:1/1;border:4px solid #fff;border-radius:50%;font-size:24px;background:#e8e8e8;z-index:2;box-sizing:border-box;flex-shrink:0}#x .xprofileinfo .xname{font-size:1.12em}#x .xprofileinfo .xhandle{font-size:1.06em}#x .xprofileinfo .xbio{font-size:1.08em}#x .xprofileinfo .xmeta{font-size:1.04em}#x .xbio{color:#0f1419;line-height:1.4;margin:3% 0}#x .xprivate{color:#536471;font-size:2.8cqw;margin-top:2%}#x .xback{font-size:5cqw}#x .xviewtitle{font-weight:800;font-size:4cqw}#x .xreplylabel{color:#536471;font-size:2.8cqw;margin-bottom:2%}
+#x .x-tabs{display:flex;align-items:center;justify-content:space-around;height:9%;min-height:38px;border-bottom:1px solid #eff3f4;flex-shrink:0;background:#fff}#x .x-tabs button{height:100%;flex:1;border:0;background:white;color:#536471;font-size:3.2cqw;font-weight:600;position:relative}#x .x-tabs button.active{color:#0f1419}#x .x-tabs button.active:after{content:"";position:absolute;bottom:0;left:18%;right:18%;height:3px;border-radius:3px;background:#0f1419}
+#x .xdrawer{position:absolute;inset:0;z-index:20;background:#fff;display:flex;flex-direction:column;padding:5% 6%;box-shadow:0 0 0 100vmax #0005;overflow:auto}
+#x .xmenuitem{display:flex;align-items:center;gap:14px}
+#x .xmenu-icon{width:22px;height:22px;object-fit:contain;flex:none}
+#x .xlock-icon{display:inline-block;width:14px;height:14px;object-fit:contain;vertical-align:-2px;flex:none}#x .xdrawer .xmenuitem{padding:3.6% 0;font-size:4.1cqw;font-weight:650;border:0;background:transparent;text-align:left;color:#0f1419}#x .xdrawer .xmenufoot{margin-top:auto;padding-top:5%;border-top:1px solid #eff3f4;font-size:3.2cqw;color:#536471}#x .xdrawerhead{display:flex;align-items:center;gap:3%;padding-bottom:5%}#x .xdrawerhead .xavatar{width:17cqw;height:17cqw}#x .xmuted{color:#536471}
+
+
+
+</style>
+<style id="x-font-size-requested-overrides">
+/* Following timeline and profile post names, handles, and private-lock icons */
+#x .xpost .xmeta .xname,
+#x .xpost .xmeta .xhandle { font-size: 4.2cqw !important; }
+#x .xpost .xmeta .xlock-icon { width: 4.2cqw !important; height: 4.2cqw !important; vertical-align: -0.6cqw !important; }
+/* Side drawer account name and handle */
+#x .xdrawer > b { font-size: 5cqw !important; }
+#x .xdrawer > .xmeta:first-of-type { font-size: 4.7cqw !important; }
+/* Profile page header title */
+#x .x-profile-top-title { font-size: 6cqw !important; }
+/* Profile information name, handle, and lock icon */
+#x .xprofileinfo .x-profile-display-name { font-size: 6cqw !important; }
+#x .xprofileinfo > .xmeta { font-size: 5cqw !important; }
+#x .xprofileinfo > .x-profile-display-name .xlock-icon { width: 4.2cqw !important; height: 4.2cqw !important; vertical-align: -0.6cqw !important; }
+</style>
+<script>
+(()=>{
+const root=document.querySelector('#x'); if(!root)return;
+const KEY='iphoneXAppState_v3';
+const people={
+matsuda:{name:'송',handle:'mtd*8t',initial:'송',photo:'mtdp.png',bio:'약속 꼭 지킬 테니까',joined:'2016년 4월 가입',following:24,followers:15},
+kenji:{name:'H☆',handle:'i*k*emen',initial:'H',photo:'hgp.png',bio:'',joined:'2016년 3월 가입'},
+date:{name:'다테 와타루',handle:'Wataru*Date',initial:'다',photo:'dtp.png',bio:'',joined:'2015년 11월 가입'},
+rei:{name:'0',handle:'ze*ro',initial:'0',photo:'zrp.png',bio:'',joined:'2016년 2월 가입'},
+hiro:{name:'HERO',handle:'he*ro',initial:'H',photo:'hrp.png',bio:'',joined:'2016년 5월 가입'},
+chihaya:{name:'치하야',handle:'of*the*Wind',initial:'치',photo:'chp.png',bio:'',joined:'2015년 7월 가입'} };
+const seed=[
+{id:'p01',user:'kenji',date:'2019-09-02',text:'누나한테 또 잔소리 들어 버렸네...',likes:4,replies:[{id:'p01r1',user:'chihaya',date:'2019-09-02',text:'제발 좀 잘라. 자를 때까지 집에 들어오지 마.',likes:3,replies:[]}]},
+{id:'p02',user:'matsuda',date:'2019-09-04',text:'야 나 오늘 하얀색 도둑 잡았다.',image:'t2.png',likes:5,replies:[{id:'p02r1',user:'kenji',date:'2019-09-04',text:'오늘 오프 아냐? 진페쨩~ 왜 일하고 있어~',likes:0,replies:[]}]},
+{id:'p03',user:'matsuda',date:'2019-09-11',text:'하기 너 뭐 함?',image:'dd.png',likes:0,replies:[{id:'p03r1',user:'chihaya',date:'2019-09-11',text:'오늘 어디 잡혀갔대',likes:1,replies:[]}]},
+{id:'p04',user:'matsuda',date:'2019-09-19',text:'놀이공원 다녀왔다. 2시간 만에 나왔지만...',image:'hgmt2.png',likes:4,replies:[{id:'p04r1',user:'kenji',date:'2019-09-19',text:'나이 들어서 힘드네.....',likes:0,replies:[]}]},
+{id:'p05',user:'chihaya',date:'2019-09-20',text:'레시피에는 분명 쉽다고 쓰여 있었는데, 대체 어디서부터 잘못된 거지?',likes:3,replies:[{id:'p05r1',user:'matsuda',date:'2019-09-20',text:'또 무슨 지옥의 음식을 만든 거지',likes:1,replies:[]},{id:'p05r2',user:'chihaya',date:'2019-09-20',text:'죽고 싶어?',likes:2,replies:[]}]},
+{id:'p06',user:'hiro',date:'2019-10-02',text:'사진첩 정리하다가 예전 사진 발견했어~ 둘 다 너무 귀엽다 ㅎㅎ',image:'hgmt.png',likes:4,replies:[{id:'p06r1',user:'matsuda',date:'2019-10-02',text:'아; 히로 뭐 해;',likes:0,replies:[]},{id:'p06r2',user:'date',date:'2019-10-02',text:'와 진짜 풋풋하네 ㅋㅋㅋㅋ',likes:0,replies:[]},{id:'p06r3',user:'kenji',date:'2019-10-02',text:'진페쨩 귀여웠지..🥹',likes:0,replies:[]},{id:'p06r4',user:'rei',date:'2019-10-03',text:'아 저때 생각난다. 마츠다가 하기와라한테 소다 뿌린 날이잖아.',likes:2,replies:[]}]},
+{id:'p07',user:'chihaya',date:'2019-10-08',text:'웬수 같은 놈들, 실컷 잘 놀고 와서 둘 다 독감에 걸려?',likes:0,replies:[]},
+{id:'p08',user:'kenji',date:'2019-10-12',text:'진페쨩, 그러게 내가 겉옷 챙기랬잖아. 결국 내 거 빌려 갈 거면서~',likes:2,replies:[{id:'p08r1',user:'matsuda',date:'2019-10-12',text:'시끄러워',likes:0,replies:[]},{id:'p08r2',user:'kenji',date:'2019-10-12',text:'작업 걸린 거 맞지?',likes:1,replies:[]}]},
+{id:'p08d',user:'date',date:'2019-10-14',text:'오늘은 유난히 일이 안 끝나네. 다들 퇴근했으면 좋겠는데.',likes:2,replies:[]},
+{id:'p09',user:'kenji',date:'2019-10-16',text:'주정뱅이 누님 분양합니다. 제발.',likes:2,replies:[{id:'p09r1',user:'chihaya',date:'2019-10-17',text:'켄지.. 나 물 좀 가져다줘...',likes:0,replies:[]},{id:'p09r2',user:'kenji',date:'2019-10-17',text:'트위터 할 시간에 나가서 떠먹어 주세요. 누님.',likes:1,replies:[]},{id:'p09r3',user:'chihaya',date:'2019-10-17',text:'좋아요 저거 마츠다지',likes:1,replies:[]}]},
+{id:'p09r',user:'rei',date:'2019-10-25',text:'할 일은 쌓여 가는데 하루는 짧기만 하네. 조금만 더 힘내자.',likes:3,replies:[]},
+{id:'p09ny',user:'hiro',date:'2020-01-01',text:'새해 복 많이 받아. 다들 건강하자.',likes:5,replies:[]},
+{id:'p10',user:'matsuda',date:'2019-11-06',text:'보고서가 끝날 기미가 없네. 대체 누가 이만큼 일을 만든 거야. 아오.',likes:4,replies:[{id:'p10r1',user:'kenji',date:'2019-11-06',text:'아직도 퇴근 안 했냐고 ...',likes:0,replies:[]}]},
+{id:'p11',user:'kenji',date:'2019-11-07',text:'즐거운~ 폭탄 해체 타임~ ㅠㅠ 아, 쉬는 날인데~ㅜㅜ',likes:4,replies:[]},
+{id:'p12',user:'matsuda',date:'2020-11-07',text:'보고 싶어',likes:4,replies:[]},
+{id:'p13',user:'matsuda',date:'2021-11-07',text:'너무 보고 싶어',likes:4,replies:[]},
+{id:'p14',user:'matsuda',date:'2022-11-07',text:'별일 없지, 보고 싶어.',likes:4,replies:[]},
+{id:'p15',user:'matsuda',date:'2023-10-31',text:'약속, 꼭 지킬 테니까.',likes:3,replies:[]}
+];
+let state;try{state=JSON.parse(sessionStorage.getItem(KEY)||'null')}catch(e){};if(!state||!Array.isArray(state.posts))state={posts:seed,likes:[],view:'home',profile:'matsuda',selected:null};
+const save=()=>{try{sessionStorage.setItem(KEY,JSON.stringify(state))}catch(e){}};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const person=id=>people[id]||{name:'自分',handle:'you',initial:'自',bio:'',joined:''};
+const allPosts=()=>state.posts.slice().sort((a,b)=>b.date.localeCompare(a.date)||String(b.id).localeCompare(String(a.id)));
+const allReplies=()=>state.posts.flatMap(p=>(p.replies||[]).map(r=>({...r,parentId:p.id}))).sort((a,b)=>b.date.localeCompare(a.date));
+function avatar(id){let p=person(id);return `<div class="xavatar">${p.photo?`<img src="${esc(p.photo)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:esc(p.initial)}</div>`}
+function postHTML(p){let u=person(p.user),liked=state.likes.includes(p.id);return `<article class="xpost" data-open="${esc(p.id)}">${avatar(p.user)}<div class="xpostmain"><div class="xmeta"><span class="xname">${esc(u.name)}</span> <img class="xlock-icon" src="17.png" alt="비공개"> <span class="xhandle">@${esc(u.handle)} · ${esc(p.date)}</span></div>${p.text?`<div class="xtext">${esc(p.text)}</div>`:''}${p.image?`<img src="${esc(p.image)}" alt="게시글 이미지" style="display:block;width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin-top:8px">`:''}<div class="xactions"><button class="xaction" data-reply="${esc(p.id)}" aria-label="답글"><img class="xaction-icon" src="2.png" alt=""> <span>${p.replies?.length||0}</span></button><button class="xaction" disabled aria-label="리포스트"><img class="xaction-icon" src="1.png" alt=""></button><button class="xaction ${liked?'liked':''}" data-like="${esc(p.id)}" aria-label="좋아요"><img class="xaction-icon" src="${liked?'3-1.png':'3.png'}" alt=""><span>${p.likes||0}</span></button><button class="xaction" disabled aria-label="북마크"><img class="xaction-icon" src="4.png" alt=""></button><span class="xaction" aria-hidden="true"><img class="xaction-icon" src="r3.png" alt=""></span></div></div></article>`}
+function menu(){return `<div class="xdrawer"><div class="xdrawerhead">${avatar('matsuda')}<button class="xbtn" data-closemenu style="margin-left:auto;font-size:6cqw">×</button></div><b style="font-size:4cqw">${esc(people.matsuda.name)} <img class="xlock-icon" src="17.png" alt="비공개"></b><div class="xmeta" style="margin:2% 0 5%">@${esc(people.matsuda.handle)}</div><div class="xmeta" style="margin-bottom:5%">24 팔로잉　15 팔로워</div><button class="xmenuitem" data-view="profile" data-user="matsuda"><img class="xmenu-icon" src="11.png" alt="">프로필</button><button class="xmenuitem" data-menu-dummy><img class="xmenu-icon" src="12.png" alt="">프리미엄</button><button class="xmenuitem" data-menu-dummy><img class="xmenu-icon" src="14.png" alt="">이전 내역</button><button class="xmenuitem" data-menu-dummy><img class="xmenu-icon" src="13.png" alt="">커뮤니티</button><button class="xmenuitem" data-menu-dummy>☷　리스트</button><button class="xmenuitem" data-menu-dummy><img class="xmenu-icon" src="15.png" alt="">스페이스</button><button class="xmenuitem" data-menu-dummy><img class="xmenu-icon" src="16.png" alt="">팔로워 요청</button><div class="xmenufoot">⚙　설정 및 개인정보 보호<br><br>ⓘ　고객센터</div></div>`}
+function replyComposeHTML(p){let u=person(p.user);return `<div class="xreply-screen"><div class="xreply-top"><button class="xreply-cancel" data-view="detail">취소</button><button class="xreply-publish" data-publishreply="${esc(p.id)}" disabled>게시하기</button></div><div class="xreply-content"><div class="xreply-source">${avatar(p.user)}<div class="xreply-source-main"><div class="xreply-source-meta"><strong>${esc(u.name)}</strong> <img class="xlock-icon" src="17.png" alt="비공개"> <span>@${esc(u.handle)} · ${esc(p.date)}</span></div><div class="xreply-source-text">${esc(p.text||'')}</div>${p.image?`<img class="xreply-source-image" src="${esc(p.image)}" alt="게시글 이미지">`:''}</div></div></div><div class="xreply-to"><span>@${esc(u.handle)}</span>님에게 보내는 답글</div><div class="xreply-entry">${avatar('matsuda')}<textarea id="xreplyText" placeholder="답글 게시하기" maxlength="280"></textarea></div></div><div class="xreply-bottom">답글 공개 범위는 원본 게시물의 설정에 따릅니다.</div></div>`}
+function render(){const oldFeed=root.querySelector('.xfeed');const oldScroll=oldFeed?oldFeed.scrollTop:0;let v=state.view||'home',html='';if(v==='reply-compose'){let p=state.posts.find(x=>x.id===state.selected)||allReplies().find(x=>x.id===state.selected);if(!p){state.view='home';return render()}html=replyComposeHTML(p)}else if(v==='menu'){html=menu()}else if(v==='profile'){let u=person('matsuda'),posts=allPosts().filter(p=>p.user==='matsuda');html=`<div class="xtop"><button class="xbtn x-back-image" data-view="home" aria-label="뒤로가기">←</button><div style="flex:1"><div class="xviewtitle x-profile-top-title">${esc(u.name)}</div><div class="xmeta">${posts.length} 게시물</div></div><button class="xbtn" data-view="home" aria-label="팔로잉으로 돌아가기">𝕏</button></div><div class="xfeed"><div class="xprofilehead"></div><div class="xprofileinfo">${avatar('matsuda')}<div class="x-profile-display-name" style="font-size:4.3cqw;font-weight:800;margin-top:3%">${esc(u.name)} <img class="xlock-icon" src="17.png" alt="비공개"></div><div class="xmeta">@${esc(u.handle)}</div><div class="xbio">${esc(u.bio)}</div><div class="xprivate"><img class="xlock-icon" src="17.png" alt="비공개"> 비공개 계정 · ${esc(u.joined)}</div><div style="margin-top:3%;color:#536471;font-size:3cqw"><b style="color:#0f1419">24</b> 팔로잉　<b style="color:#0f1419">15</b> 팔로워</div></div><div class="x-tabs"><button class="${(state.profileTab||'posts')==='posts'?'active':''}" data-profiletab="posts">게시물</button><button class="${state.profileTab==='replies'?'active':''}" data-profiletab="replies"><img class="xaction-icon" src="2.png" alt="답글"></button></div><div id="xprofilelist">${(state.profileTab==='replies'?allReplies().filter(p=>p.user==='matsuda'):posts).map(p=>postHTML(p)).join('')}</div></div>`}
+else if(v==='compose'){html=`<div class="xtop xcompose-top"><button class="xbtn" data-view="home">취소</button><button class="xprimary" data-publishpost disabled>게시하기</button></div><div class="xcompose-screen">${avatar('matsuda')}<textarea id="xnewText" placeholder="무슨 일이 일어나고 있나요?" maxlength=280></textarea></div>`}
+else if(v==='detail'){let p=state.posts.find(x=>x.id===state.selected)||allReplies().find(x=>x.id===state.selected);if(!p){state.view='home';return render()}let par=state.posts.find(x=>(x.replies||[]).some(r=>r.id===p.id));html=`<div class="xtop"><button class="xbtn x-back-image" data-detail-back aria-label="뒤로가기">←</button><div class="xviewtitle">게시물</div></div><div class="xfeed">${par?postHTML(par):''}${postHTML(p)}<div class="xcomposewrap" style="padding:4%;border-bottom:1px solid #eff3f4"><div class="xreplylabel">답글 작성</div><textarea id="xreplyText" placeholder="답글을 입력하세요" style="width:100%;min-height:54px;resize:vertical;font:inherit"></textarea><button class="xprimary" data-sendreply="${esc(p.id)}">답글</button></div>${(p.replies||[]).map(r=>postHTML(r)).join('')}</div>`}
+else{html=`<div class="xtop"><button class="xbtn" data-view="menu" aria-label="프로필 메뉴">${avatar('matsuda')}</button><div class="xbrand">𝕏</div><span style="width:10cqw"></span></div><div class="x-tabs"><button class="active" data-hometab="following">팔로잉</button></div><div class="xfeed">${allPosts().map(p=>postHTML(p)).join('')}</div><button class="xprimary xfloat-compose" data-compose aria-label="새 게시물 작성">＋</button><div class="xnav"><button class="xbtn" data-view="home" aria-label="홈"><img src="3-13.png" alt="홈"></button><button class="xbtn" data-search aria-label="검색"><img src="3-15.png" alt="검색"></button><button class="xbtn" data-search aria-label="탐색"><img src="3-14.png" alt="탐색"></button><button class="xbtn" data-search aria-label="알림"><img src="3-16.png" alt="알림"></button><button class="xbtn" data-search aria-label="메시지"><img src="2.png" alt="메시지"></button></div>`}
+root.innerHTML=`<div class="xapp">${html}</div><img class="x-status-bar-image" src="909.png" alt="" aria-hidden="true">`;const newFeed=root.querySelector('.xfeed');if(newFeed){if(v==='home'&&typeof state.homeScrollTop==='number')newFeed.scrollTop=state.homeScrollTop;else if(v==='profile'&&typeof state.profileScrollTop==='number')newFeed.scrollTop=state.profileScrollTop;else if(v==='detail'||v==='reply-compose')newFeed.scrollTop=oldScroll;else newFeed.scrollTop=0;}}
+root.addEventListener('click',e=>{const detailBack=e.target.closest('#x [data-detail-back]');if(!detailBack)return;e.preventDefault();e.stopPropagation();state.view=(state.returnView==='profile'?'profile':'home');save();render();},true);root.addEventListener('click',e=>{const composeButton=e.target.closest('[data-compose]');if(composeButton){e.preventDefault();e.stopImmediatePropagation();state.view='compose';save();render();return}},true);
+root.addEventListener('click',e=>{let b=e.target.closest('button');if(!b)return;if(b.disabled)return;if(b.hasAttribute('data-closemenu')){state.view='home';save();render();return}if(b.hasAttribute('data-detail-back')){state.view=state.returnView||'home';save();render();return}if(b.dataset.menuDummy||b.dataset.search)return;if(b.dataset.view){state.view=b.dataset.view;if(b.dataset.user)state.profile=b.dataset.user;save();render();return}if(b.dataset.profiletab){state.profileTab=b.dataset.profiletab;render();return}if(b.dataset.hometab){root.querySelectorAll('[data-hometab]').forEach(x=>x.classList.toggle('active',x===b));return}if(b.dataset.compose){state.view='compose';save();render();return}if(b.dataset.like){e.preventDefault();e.stopPropagation();const activeFeed=b.closest('.xfeed');if(activeFeed){if(state.view==='profile')state.profileScrollTop=activeFeed.scrollTop;else if(state.view==='home')state.homeScrollTop=activeFeed.scrollTop;}let id=b.dataset.like,p=state.posts.find(x=>x.id===id);if(!p){for(const parent of state.posts){const reply=(parent.replies||[]).find(x=>x.id===id);if(reply){p=reply;break}}}if(!p)return;if(state.likes.includes(id)){state.likes=state.likes.filter(x=>x!==id);p.likes=Math.max(0,(p.likes||0)-1)}else{state.likes.push(id);p.likes=(p.likes||0)+1}save();e.stopImmediatePropagation();render();return}if(b.hasAttribute('data-publishpost')){let t=root.querySelector('#xnewText')?.value.trim();if(!t)return;state.posts.push({id:'u'+Date.now(),user:'matsuda',date:'2023-10-31',text:t,likes:0,replies:[]});state.view='home';save();render();if(/보고\s*싶(?:다|어)/.test(t)&&window.__triggerHiroPostCall)window.__triggerHiroPostCall();return}if(b.dataset.sendreply||b.dataset.publishreply){let targetId=b.dataset.sendreply||b.dataset.publishreply;let t=root.querySelector('#xreplyText')?.value.trim();if(!t)return;let p=state.posts.find(x=>x.id===targetId)||allReplies().find(x=>x.id===targetId);if(p){p.replies=p.replies||[];p.replies.push({id:'u'+Date.now(),user:'matsuda',date:'2023-10-31',text:t,likes:0,replies:[]});state.view='detail';state.selected=p.id;save();render()}return}if(b.dataset.reply){state.selected=b.dataset.reply;state.view='reply-compose';save();render();return}});
+root.addEventListener('click',e=>{if(e.target.closest('[data-like],[data-reply],[data-repost],.xactions'))return;let a=e.target.closest('[data-open]');if(!a||e.composedPath().some(n=>n&&n.tagName==='BUTTON'))return;const feed=a.closest('.xfeed');state.returnView=state.view||'home';if(state.returnView==='profile')state.profileScrollTop=feed?.scrollTop||0;else if(state.returnView==='home')state.homeScrollTop=feed?.scrollTop||0;state.selected=a.dataset.open;state.view='detail';save();render()});
+let touchX=null;root.addEventListener('touchstart',e=>{touchX=e.touches[0].clientX},{passive:true});root.addEventListener('touchend',e=>{if(touchX===null)return;let dx=e.changedTouches[0].clientX-touchX;if(dx>70&&state.view==='home'){state.view='menu';save();render()}else if(dx<-70&&state.view==='menu'){state.view='home';save();render()}touchX=null},{passive:true});
+root.addEventListener('input',e=>{if(e.target.id==='xreplyText'){let btn=root.querySelector('[data-publishreply]');if(btn)btn.disabled=!e.target.value.trim()}if(e.target.id==='xnewText'){let btn=root.querySelector('[data-publishpost]');if(btn)btn.disabled=!e.target.value.trim()}});
+render();
+})();
+</script>
+
+
+<style id="messages-isolated-style">
+#messages .app-bg,#message-chat .app-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}
+#messages .msg-list-ui{position:absolute;inset:0;container-type:inline-size;overflow:hidden}
+.msg-edit-static,.msg-filter-static{position:absolute;z-index:5;border:0;background:rgba(255,255,255,.96);border-radius:99px;color:#111}
+.msg-edit-static{left:4.5%;top:5.7%;width:16%;height:5.2%;font-size:3.6cqw}
+.msg-filter-static{right:4.5%;top:5.7%;width:11%;height:5.2%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.msg-filter-static span{height:2px;background:#111;border-radius:2px;width:55%}.msg-filter-static span:nth-child(2){width:42%}.msg-filter-static span:nth-child(3){width:29%}
+.msg-search-static{position:absolute;left:7%;right:22%;bottom:3.5%;height:5.8%;border-radius:99px;background:#fff;display:flex;align-items:center;padding:0 5%;gap:4%;font-size:4cqw;color:#888;z-index:5}
+.msg-search-static b{font-size:6cqw;color:#111;font-weight:500}
+.msg-conversation-rows{position:absolute;left:0;right:0;top:25%;bottom:11%;overflow:auto;z-index:10;scrollbar-width:none}
+.msg-row{position:relative;width:100%;height:10.5%;min-height:62px;border:0;background:transparent;display:flex;align-items:center;gap:3%;padding:0 5%;text-align:left;color:#111;font:inherit;cursor:pointer;z-index:11}
+.msg-row:after{content:"";position:absolute;left:22%;right:0;bottom:0;height:1px;background:#e5e5e7}
+#messageRows > .msg-row:last-of-type:after{display:none}
+#messageRows > .msg-section-label:first-child + .msg-row:after{display:none}
+.msg-row.msg-favorite-last:after{display:none}
+.msg-row-avatar{display:block;width:100%;height:100%;aspect-ratio:1;object-fit:cover;border-radius:50%;flex:0 0 100%;min-width:0;min-height:0}
+.msg-row-main{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}
+.msg-row-heading{display:flex;align-items:center;gap:2%;min-width:0}
+.msg-row-name{font-size:4.8cqw;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.msg-row-date{font-size:3.1cqw;color:#8e8e93;white-space:nowrap}
+.msg-row-preview{font-size:3.6cqw;color:#8e8e93;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#message-chat{container-type:inline-size;overflow:hidden}
+#message-chat .msg-chat-avatar{position:absolute;left:50%;top:5.4%;transform:translateX(-50%);width:14%;height:auto;aspect-ratio:1;object-fit:cover;object-position:center;border-radius:50%;z-index:5;box-sizing:border-box}
+#message-chat .msg-chat-contact{position:absolute;left:25%;right:25%;top:12%;height:4%;border-radius:99px;background:#fff;display:flex;align-items:center;justify-content:center;text-align:center;font-size:5cqw;font-weight:750;z-index:4}
+#message-chat .msg-imessage{position:absolute;left:0;right:0;top:17.5%;text-align:center;color:#8e8e93;font-size:3cqw;z-index:2}
+#message-chat .msg-chat-history{position:absolute;left:4%;right:4%;top:21%;bottom:12%;overflow-y:auto;scrollbar-width:none;display:flex;flex-direction:column;gap:1.2%;padding:2% 0;box-sizing:border-box;z-index:2}
+.msg-date{align-self:center;color:#777;background:#f0f0f3;border-radius:99px;padding:1.4% 3.8%;font-size:2.8cqw;font-weight:700;margin:2% 0}
+.msg-bubble-row{display:flex;width:100%}.msg-bubble-row.in{justify-content:flex-start}.msg-bubble-row.out{justify-content:flex-end}
+.msg-bubble{max-width:78%;padding:2.5% 3.5%;border-radius:5cqw;font-size:3.7cqw;line-height:1.3;font-weight:700;overflow-wrap:anywhere;box-sizing:border-box}
+.msg-bubble.in{background:#e9e9eb;color:#111;border-bottom-left-radius:1.5cqw}.msg-bubble.out{background:#087cff;color:#fff;border-bottom-right-radius:1.5cqw}
+#message-chat .msg-input-bar{position:absolute;left:0;right:0;bottom:0;height:11.5%;display:flex;align-items:center;gap:2.5%;padding:0 3.5%;box-sizing:border-box;z-index:4}
+.msg-plus{width:8%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;text-align:center;border:0;border-radius:50%;background:#ededf0;color:#333;font-size:5.8cqw;flex-shrink:0;box-sizing:border-box}
+.msg-input-wrap{height:48%;min-width:0;flex:1;border:1px solid #d6d6d8;border-radius:99px;background:#f7f7f8;display:flex;align-items:center;padding:0 3%;box-sizing:border-box}
+#messageInput{width:100%;border:0;outline:0;background:transparent;font:inherit;font-size:3.7cqw;color:#111;min-width:0}
+#messageInput::placeholder{color:#8e8e93}
+.msg-send{width:8%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;text-align:center;border:0;border-radius:50%;background:#087cff;color:#fff;font-size:5.5cqw;flex-shrink:0;box-sizing:border-box}
+.msg-send:disabled{opacity:.35}
+/* Virtual iOS keyboard, scoped only to the Messages conversation screen. */
+#message-chat .ios-virtual-keyboard{position:absolute;left:0;right:0;bottom:0;height:29.5%;z-index:8;display:none;box-sizing:border-box;padding:1.4% 1.6% 2.2%;background:rgba(211,215,222,.98);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);flex-direction:column;gap:1.5%;user-select:none;touch-action:manipulation}
+#message-chat.keyboard-open .ios-virtual-keyboard{display:flex}
+#message-chat.keyboard-open .msg-input-bar{bottom:29.5%}
+#message-chat.keyboard-open .msg-chat-history{bottom:41.5%}
+.ios-vk-row{display:flex;flex:1;min-height:0;gap:1.15%;justify-content:center}
+.ios-vk-key{flex:1;min-width:0;border:0;border-radius:5px;background:#fff;color:#202124;box-shadow:0 1px 0 rgba(0,0,0,.18);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;font-size:clamp(8px,3.25cqw,24px);font-weight:400;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;touch-action:manipulation;cursor:pointer}
+.ios-vk-key:active{background:#c5cad2}
+.ios-vk-key.special{background:#aeb5c0;font-size:clamp(7px,2.65cqw,20px)}
+.ios-vk-key.action{background:#087cff;color:#fff;font-weight:650}
+.ios-vk-key.space{flex:4}.ios-vk-key.utility{flex:1.45}.ios-vk-key.wide{flex:1.55}
+#message-chat .msg-input-wrap{cursor:text}
+</style>
+<script id="messages-isolated-script">
+(()=>{
+ const $=id=>document.getElementById(id),list=$('messages'),chat=$('message-chat');if(!list||!chat)return;
+ const conversations=[
+ {id:'hagi',name:'하기',avatar:'hg.png',favorite:true,messages:[
+ {text:'너네 어디갔냐?',side:'out',date:'2019.9.2'}, {text:'데이트 - ☆',side:'in',date:'2019.9.2'}, {text:'나는????',side:'out',date:'2019.9.2'}, {text:'진페쨩-\n남매 사이를 방해하려 들지마\n둘 다 가지려 하고..욕심쟁이네!',side:'in',date:'2019.9.2'}, {text:'열받게 하지 말고\n전화 받아라',side:'out',date:'2019.9.2'},
+ {text:'너 어딤?',side:'out',date:'2019.9.11'}, {text:'진페쨩',side:'in',date:'2019.9.11'}, {text:'살려ㅑ줘',side:'in',date:'2019.9.11'}, {text:'?',side:'out',date:'2019.9.11'},
+ {text:'놀이공원 갈래?',side:'in',date:'2019.9.18'}, {text:'애냐,',side:'out',date:'2019.9.18'}, {text:'형이 다 쏜다👌💵',side:'in',date:'2019.9.18'}, {text:'네, 형💖',side:'out',date:'2019.9.18'},
+ {text:'어디냐\n나 가는 길',side:'out',date:'2019.10.6'}, {text:'나 먼저 도착해서 기다리고 있지\n진페쨩 지각쟁이네~',side:'in',date:'2019.10.6'}, {text:'나 닮은 거 뽑음 ❤️',side:'in',date:'2019.10.6',image:'htt2.png'}, {text:'와ㅋㅋㅋㅋㅋㅋㅋㅋ\n진짜 못생겼어 ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ',side:'out',date:'2019.10.6'}, {text:'내놔.',side:'out',date:'2019.10.6'},
+ {text:'아 진짜 너무 힘들다',side:'in',date:'2019.10.16'}, {text:'치하야 데리러 감?',side:'out',date:'2019.10.16'}, {text:'엉... 일단 업어서 데리고 옴ㅠㅠ\n나 보고 피카츄래ㅠㅠ\n백만볼트 쓰랜다 ㅠㅠ',side:'in',date:'2019.10.16'}, {text:'ㅋㅋㅋㅋㅋㅋㅋㅋ 닮긴 했다',side:'out',date:'2019.10.16'}, {text:'어느 포인트가..?',side:'in',date:'2019.10.16'}, {text:'몰라. 귀여운 거?',side:'out',date:'2019.10.16'}, {text:'가끔 너무 로맨틱하다니까',side:'in',date:'2019.10.16'}, {text:'헛소리 그만하고 자라;',side:'out',date:'2019.10.16'},
+ {text:'아; 메일 읽는다고...',side:'out',date:'2019.11.1'}, {text:'진페쨩 메일함 상황을 내가 아는데 그런 소리가 나와?',side:'in',date:'2019.11.1'}, {text:'다른 건 몰라도 니 건 읽어',side:'out',date:'2019.11.1'}, {text:'뭐야.. 감동이야. 사랑해❤️',side:'in',date:'2019.11.1',image:'htt.png'},
+ {text:'',side:'out',date:'2019.11.1',image:'mtt.png',imageOnly:true}, {text:'담타ㄱ?',side:'out',date:'2019.11.2'}, {text:'ㄱㄱ',side:'in',date:'2019.11.2'}, {text:'사진첩 보는데 너 봐봐 ㅋㅋㅋㅋㅋㅋㅋㅋ',side:'in',date:'2019.11.3',image:'htt3.png'}, {text:'미치겠네 나 왜 저러고 있냐',side:'out',date:'2019.11.3'}, {text:'ㅋㅋㅋㅋㅋㅋㅋㅋㅋ둘다 제정신 아니었어, 이제 못놀겠다',side:'in',date:'2019.11.3'}, {text:'근데 또 가고싶긴함. 다음엔 패스권 끊어서 가자;',side:'out',date:'2019.11.3'},
+ {text:'하기, 나 오늘 야근',side:'out',date:'2019.11.6'}, {text:'이 시간까지? 내일 올 수 있겠냐',side:'in',date:'2019.11.6'}, {text:'몰라 진짜 더럽게 바빠',side:'out',date:'2019.11.6'}, {text:'적당히 마무리하라니까...\n일어나면 연락해',side:'in',date:'2019.11.6'},
+ {text:'야 하기, 빨리하고 가자.\n내가 한턱 쏠게',side:'out',date:'2019.11.7'}, {text:'약속 지키는 거다?\n내가 먼저 끝낼 거 같은데~',side:'in',date:'2019.11.7'}, {text:'뭐래 나야 3분이면 충분하지ㅋㅋ',side:'out',date:'2019.11.7'}, {text:'나쁜 새끼',side:'out',date:'2019.11.8'},
+ {text:'오늘 화이트 크리스마스래\n보고 싶다',side:'out',date:'2019.12.25',prefix:'야 하기.'}, {text:'새해 복 많이 받아라\n이젠 내가 형이네',side:'out',date:'2020.1.1'}, {text:'하기, 여기는 이제 봄이다\n거기도 봄일까',side:'out',date:'2020.3.2'}, {text:'많이 더워졌어. 정장이란 거 쉽지 않네.',side:'out',date:'2020.8.4'}, {text:'보고 싶다. 하기.\n잘 있냐.',side:'out',date:'2020.11.7'}, {text:'넌 그대로인데 나만 나이 먹어 가네\n새해 복 많이 받아라',side:'out',date:'2021.1.1'}, {text:'우리 맨날 가던 거기 있잖아.\n폐업이래.\n점점 네가 내 삶에서 사라지는 기분이야.',side:'out',date:'2021.4.5'}, {text:'약속 꼭 지킬 테니까.\n너무 걱정하지 마.\n그리고 미안하다...',side:'out',date:'2021.11.7'}, {text:'보고 싶어.',side:'out',date:'2022.1.1'}, {text:'잘 지내고 있냐.\n보고 싶다.',side:'out',date:'2022.11.6'}, {text:'갈수록 선명해진다는 말\n이해 못 했는데\n이젠 좀 이해하게 된 거 같아.',side:'out',date:'2022.11.7'}, {text:'새해 복 많이 받아라 하기\n요즘 진짜 바쁘다.\n넌 뭐 하냐',side:'out',date:'2023.1.1'}, {text:'오늘따라 하늘이 예쁘네😎\n기분 좋은 일이라도 있나 봐?',side:'out',date:'2023.8.16',image:'mtt2.png'}, {text:'야 나 너 너무 보고 싶다.\n어떡하냐.',side:'out',date:'2023.9.17'}, {text:'하기, 네 웬수 갚아 주겠단 약속\n올해는 꼭 이루고 싶다\n다음 달에 보자.',side:'out',date:'2023.10.31'},
+ ]},
+ {id:'father',name:'아버지',avatar:'uk.png',messages:[{text:'아버지, 병원 예약했어요.',side:'out',date:'2023.10.10'},{text:'내일 오전에 모시러 갈게요.',side:'out',date:'2023.10.15'},{text:'그래',side:'in',date:'2023.10.15'}]},
+ {id:'card',name:'0444-1111',avatar:'uk.png',service:true,messages:[{text:'[카드 결제 안내] 오늘은 카드 이용대금 결제일입니다. 등록된 계좌의 잔액을 확인해 주세요.',side:'in',date:'2023.10.14'}]},
+ {id:'ad',name:'070-0000-0000',avatar:'uk.png',service:true,messages:[{text:'[특별 할인 안내] 인기 상품 기간 한정 할인 중! 지금 다양한 혜택을 확인해 보세요.',side:'in',date:'2023.10.10'}]},
+ {id:'police',name:'#9110',avatar:'uk.png',service:true,messages:[{text:'[업무 안내] 금일은 보고서 제출 마감일입니다. 기한 내 제출 바랍니다.',side:'in',date:'2023.10.30'}]},
+ {id:'hospital',name:'5049-0011',avatar:'uk.png',service:true,messages:[{text:'[진료 예약 안내] 내일은 예약하신 진료일입니다. 예약 시간에 맞춰 방문해 주세요.',side:'in',date:'2023.10.15'}]},
+ {id:'zero',name:'제로',avatar:'zr.png',messages:[{text:'제로, 얘기 들었지?',side:'out',date:'2023.10.8'},{text:'미안, 마츠다. 확인이 늦었어.\n히로한테 얘기 들었어.',side:'in',date:'2023.10.10'},{text:'여전히 바쁘구만~\n그럼 다음 달에 보자.',side:'out',date:'2023.10.10'},{text:'요즘 더 정신이 없네.\n다음 달에 보자.',side:'in',date:'2023.10.11'}]},
+ {id:'hiro',name:'히로',avatar:'hr.png',messages:[{text:'마츠다. 새해 복 많이 받아.',side:'in',date:'2023.1.1'},{text:'히로, 너도.',side:'out',date:'2023.1.1'},{text:'다음 달에 괜찮지?',side:'in',date:'2023.10.7'},{text:'응. 항상 문제없지😎',side:'out',date:'2023.10.7'},{text:'그래, 그럼 그때 봐!\n제로한테는 내가 얘기했어~',side:'in',date:'2023.10.8'},{text:'둘 다 고생 많다.\n그때 보자!',side:'out',date:'2023.10.8'}]},
+ {id:'date',name:'반장',avatar:'bj.png',messages:[{text:'반장, 다음 달에 일정 괜찮은 거지?',side:'out',date:'2023.10.7'},{text:'마츠다. 당연하지.',side:'in',date:'2023.10.7'},{text:'오케이~ 그때 봅시다',side:'out',date:'2023.10.7'},{text:'👍👍',side:'in',date:'2023.10.7'}]},
+ {id:'chihaya',name:'치하야',avatar:'ch.png',messages:[{text:'마츠다, 내일 온다며?',side:'in',date:'2019.11.6'},{text:'엉, 오전에 갈게~',side:'out',date:'2019.11.6'},{text:'기대해라🥰🥰',side:'in',date:'2019.11.6'},{text:'아..;; 무섭게 왜 그래.',side:'out',date:'2019.11.6'},{text:'어디야?',side:'in',date:'2019.11.7'},{text:'어디냐고',side:'in',date:'2019.11.7'},{text:'전화 왜 안 받아?',side:'in',date:'2019.11.7'},{text:'제발, 마츠다. 전화 좀 받아....',side:'in',date:'2019.11.7'},{text:'[음성 메시지 1건이 도착했습니다]',side:'in',date:'2019.11.8'},{text:'[음성 메시지 1건이 도착했습니다]',side:'in',date:'2019.11.30'},{text:'얘기는 들었어. 특수범계로 옮겨 달라고 했다며? 마츠다...',side:'in',date:'2019.12.30'},{text:'[음성 메시지 1건이 도착했습니다]',side:'in',date:'2020.1.1'},{text:'생각나서 연락했어.\n항상 고맙고... 또 밉네.',side:'in',date:'2020.11.7'},{text:'오늘 하기 보고 왔어.\n잘 지내고 있지?',side:'in',date:'2021.11.7'},{text:'[음성 메시지 1건이 도착했습니다]',side:'in',date:'2022.11.7'},{text:'새해 복 많이 받아. 마츠다.\n밥 잘 챙겨 먹고',side:'in',date:'2023.1.1'},{text:'슬슬 추워지네. 건강하게 지내고 있지?',side:'in',date:'2023.10.14'}]}
+ ];
+ const dateVal=s=>{const a=s.split('.').map(Number);return a[0]*10000+a[1]*100+a[2]};
+ let active=null,replyTimer=null;
+ const badgeStoreKey='iphone16-home-badges-v1';
+ let badgeState={missedCallIds:[],unreadByConversation:{}};
+ ['ad','hospital','police'].forEach(id=>{badgeState.unreadByConversation[id]=['initial-unread-'+id]});
+ window.__badgeState=badgeState;
+ function saveBadgeState(){if(typeof window.__refreshHomeBadges==='function')window.__refreshHomeBadges()}
+ function unreadTotal(){return Object.values(badgeState.unreadByConversation).reduce((a,v)=>a+(Array.isArray(v)?v.length:0),0)}
+ function markConversationRead(id){if((badgeState.unreadByConversation[id]||[]).length){badgeState.unreadByConversation[id]=[];saveBadgeState();renderList()}}
+ window.__isConversationOpen=(id)=>active===id&&document.getElementById('message-chat')?.classList.contains('active');
+ window.__receiveMessage=(id,message)=>{const c=conversations.find(x=>x.id===id);if(!c)return false;const m=Object.assign({side:'in',date:'2023.10.31',text:''},message||{});m.side='in';c.messages.push(m);const isOpen=window.__isConversationOpen(id);if(!badgeState.unreadByConversation[id])badgeState.unreadByConversation[id]=[];if(!isOpen)badgeState.unreadByConversation[id].push(String(Date.now())+'-'+Math.random().toString(36).slice(2,7));saveBadgeState();renderList();if(isOpen){renderChat(c);markConversationRead(id);const host=$('messageHistory');requestAnimationFrame(()=>{host.scrollTop=host.scrollHeight})}return true};
+ window.__markConversationRead=markConversationRead;
+ function lastDate(c){return Math.max(...c.messages.map(m=>dateVal(m.date||'2023.10.31')))}
+ function renderList(){const host=$('messageRows');host.innerHTML='';const fav=conversations.filter(c=>c.favorite);const general=conversations.filter(c=>!c.favorite).sort((a,b)=>lastDate(b)-lastDate(a));const ch=general.findIndex(c=>c.id==='chihaya'),card=general.findIndex(c=>c.id==='card');if(ch>=0&&card>=0&&ch>card){const [item]=general.splice(ch,1);general.splice(card,0,item)}function section(label,items){const h=document.createElement('div');h.className='msg-section-label';h.textContent=label;host.append(h);items.forEach(c=>{const last=c.messages[c.messages.length-1],row=document.createElement('button');row.className='msg-row';if(label==='즐겨찾기'&&items.indexOf(c)===items.length-1)row.classList.add('msg-favorite-last');row.type='button';const im=document.createElement('img');im.className='msg-row-avatar';im.src=c.avatar;im.onerror=()=>{im.src='uk.png'};const main=document.createElement('div');main.className='msg-row-main';const heading=document.createElement('div');heading.className='msg-row-heading';const name=document.createElement('div');name.className='msg-row-name';name.textContent=c.name;const date=document.createElement('div');date.className='msg-row-date';date.textContent=last.date||'';heading.append(name,date);const preview=document.createElement('div');preview.className='msg-row-preview';preview.textContent=last.imageOnly?'사진':last.text;main.append(heading,preview);const unread=(badgeState.unreadByConversation[c.id]||[]).length; const avatarWrap=document.createElement('span');avatarWrap.className='msg-row-avatar-wrap';avatarWrap.append(im);if(unread){const dot=document.createElement('span');dot.className='msg-row-unread-dot';dot.setAttribute('aria-label','읽지 않은 새 문자');avatarWrap.append(dot)} row.append(avatarWrap,main);row.onclick=()=>openChat(c.id);host.append(row)})}section('즐겨찾기',fav);const line=document.createElement('div');line.className='msg-section-divider';host.append(line);section('일반',general)}
+ function renderChat(c){const host=$('messageHistory');host.innerHTML='';let prev='';c.messages.forEach((m,i)=>{const d=m.date||'2023.10.31';if(d!==prev){const sep=document.createElement('div');sep.className='msg-date';sep.textContent=d;host.append(sep);prev=d}const row=document.createElement('div');row.className='msg-bubble-row '+m.side;if(m.image){const im=document.createElement('img');im.className='msg-attachment';im.src=m.image;im.alt='첨부 사진';im.loading='lazy';row.append(im)}if(!m.imageOnly&&m.text){const bubble=document.createElement('div');bubble.className='msg-bubble '+m.side;bubble.textContent=(m.prefix?m.prefix+'\n':'')+m.text;row.append(bubble)}host.append(row)});host.scrollTop=host.scrollHeight}
+ function openChat(id){active=id;const c=conversations.find(x=>x.id===id);if(!c)return;markConversationRead(id);$('msgChatContact').textContent=c.name;$('msgChatAvatar').src=c.avatar;renderChat(c);document.querySelectorAll('.screen').forEach(el=>el.classList.toggle('active',el.id==='message-chat'));} window.__openMessageConversation=openChat;
+ function send(){const input=$('messageInput'),text=input.value.trim();if(!text||!active)return;const c=conversations.find(x=>x.id===active);c.messages.push({text,side:'out',date:'2023.10.31'});input.value='';$('sendMessage').disabled=true;renderChat(c);renderList();
+ // Character SMS auto-replies: each configured rule fires once, after a 1–3 second delay.
+ const autoReplyUsed=window.__smsAutoReplyUsed||(window.__smsAutoReplyUsed={hiroBaBo:false,zeroSimSim:false,zeroMwohae:false,datePhone:false});
+ const scheduleReply=(id,name,message)=>setTimeout(()=>window.__receiveTriggeredMessage?.(id,name,message),1000+Math.floor(Math.random()*2001));
+ if(active==='hiro'&&!autoReplyUsed.hiroBaBo&&text.includes('바보')){autoReplyUsed.hiroBaBo=true;scheduleReply('hiro','히로','응? 갑자기?')}
+ if(active==='zero'&&!autoReplyUsed.zeroSimSim&&text.includes('심심해')){autoReplyUsed.zeroSimSim=true;scheduleReply('zero','제로','뭐야, 마츠다~ 오늘 바쁜 거 아니었어?')}
+ if(active==='zero'&&!autoReplyUsed.zeroMwohae&&text.includes('뭐해')){autoReplyUsed.zeroMwohae=true;scheduleReply('zero','제로','오늘 좀 바쁘네. 왜?')}
+ if(active==='date'&&!autoReplyUsed.datePhone&&text.includes('전화')){autoReplyUsed.datePhone=true;scheduleReply('date','반장','어, 마츠다. 나중에 나중에!')}
+ // Chihaya's state and functions live in the main app script, so access them through window.
+ const chihaya=window.__chihayaState;
+ if(active==='chihaya'&&chihaya&&!chihaya.firstSmsUsed){
+  chihaya.firstSmsUsed=true;
+  const firstDelay=1000+Math.floor(Math.random()*2001);
+  setTimeout(()=>{
+   window.__receiveTriggeredMessage?.('chihaya','치하야','이제서야 답장을 하네');
+   if(chihaya.phoneEverCalled||chihaya.phoneTriggerUsed)return;
+   setTimeout(()=>{
+    if(chihaya.phoneEverCalled||chihaya.phoneTriggerUsed)return;
+    window.__receiveTriggeredMessage?.('chihaya','치하야','전화해');
+    if(!chihaya.phoneEverCalled&&!chihaya.phoneTriggerUsed&&!chihaya.phoneRequestTimer){
+     chihaya.phoneRequestTimer=setTimeout(()=>{
+      chihaya.phoneRequestTimer=null;
+      if(!chihaya.phoneEverCalled&&!chihaya.phoneTriggerUsed)window.__showChihayaIncomingCall?.();
+     },30000);
+    }
+   },900);
+  },firstDelay);
+ }
+ if(active==='hiro'&&!window.__triggerOnce.hiroReply&&['아니','그냥','잘 지내?'].includes(text)){window.__triggerOnce.hiroReply=true;setTimeout(()=>{if(window.__receiveMessage)window.__receiveMessage('hiro',{text:'응, 나 잘 지내고 있으니까. 나중에 내가 다시 전화할게!',side:'in',date:'2023.10.31'});if((!window.__isConversationOpen||!window.__isConversationOpen('hiro'))&&window.__showIOSMessageNotice)window.__showIOSMessageNotice('히로','응, 나 잘 지내고 있으니까. 나중에 내가 다시 전화할게!','hiro')},900)}if(active==='hagi'&&window.__isHagiHalloweenSequenceFinished?.()&&window.__markHagiFinalReplyUsed?.()&&/보고\s*싶(?:다|어)/.test(text)){setTimeout(()=>{if(window.__receiveMessage)window.__receiveMessage('hagi',{text:'보고싶다.',side:'in',date:'2023.10.31'});if((!window.__isConversationOpen||!window.__isConversationOpen('hagi'))&&window.__showIOSMessageNotice)window.__showIOSMessageNotice('하기','보고싶다.','hagi')},500)}}
+ const vk=$('iosVirtualKeyboard'),messageInput=$('messageInput');let vkMode='ko',vkShift=false,committed='',hangul={l:'',v:'',t:''},undoStack=[];
+ const L=['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+ const V=['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+ const T=['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+ const DV={'ㅗㅏ':'ㅘ','ㅗㅐ':'ㅙ','ㅗㅣ':'ㅚ','ㅜㅓ':'ㅝ','ㅜㅔ':'ㅞ','ㅜㅣ':'ㅟ','ㅡㅣ':'ㅢ'};
+ const DT={'ㄱㅅ':'ㄳ','ㄴㅈ':'ㄵ','ㄴㅎ':'ㄶ','ㄹㄱ':'ㄺ','ㄹㅁ':'ㄻ','ㄹㅂ':'ㄼ','ㄹㅅ':'ㄽ','ㄹㅌ':'ㄾ','ㄹㅍ':'ㄿ','ㄹㅎ':'ㅀ','ㅂㅅ':'ㅄ'};
+ const ST={'ㄳ':['ㄱ','ㅅ'],'ㄵ':['ㄴ','ㅈ'],'ㄶ':['ㄴ','ㅎ'],'ㄺ':['ㄹ','ㄱ'],'ㄻ':['ㄹ','ㅁ'],'ㄼ':['ㄹ','ㅂ'],'ㄽ':['ㄹ','ㅅ'],'ㄾ':['ㄹ','ㅌ'],'ㄿ':['ㄹ','ㅍ'],'ㅀ':['ㄹ','ㅎ'],'ㅄ':['ㅂ','ㅅ']};
+ function syllable(){if(!hangul.l)return hangul.v||'';if(!hangul.v)return hangul.l;const li=L.indexOf(hangul.l),vi=V.indexOf(hangul.v),ti=T.indexOf(hangul.t);return li<0||vi<0||ti<0?hangul.l+hangul.v+hangul.t:String.fromCharCode(0xAC00+(li*21+vi)*28+ti)}
+ function paint(){messageInput.value=committed+syllable();$('sendMessage').disabled=!messageInput.value.trim()}
+ function saveUndo(){undoStack.push({committed,hangul:{...hangul}});if(undoStack.length>100)undoStack.shift()}
+ function commit(){if(hangul.l||hangul.v||hangul.t)committed+=syllable();hangul={l:'',v:'',t:''};paint()}
+ function addHangul(ch){saveUndo();if(V.includes(ch)){if(!hangul.l&&!hangul.v)committed+=ch;else if(hangul.l&&!hangul.v)hangul.v=ch;else if(hangul.l&&hangul.v&&!hangul.t){const c=DV[hangul.v+ch];if(c)hangul.v=c;else{committed+=syllable();hangul={l:'ㅇ',v:ch,t:''}}}else if(hangul.l&&hangul.v&&hangul.t){let keep='',move=hangul.t;if(ST[move]){[keep,move]=ST[move]}hangul.t=keep;committed+=syllable();hangul={l:move,v:ch,t:''};if(!L.includes(move)){committed+=move;hangul={l:'ㅇ',v:ch,t:''}}}else committed+=ch}
+ else if(L.includes(ch)){if(!hangul.l&&!hangul.v)hangul.l=ch;else if(hangul.l&&!hangul.v){const dbl={'ㄱㄱ':'ㄲ','ㄷㄷ':'ㄸ','ㅂㅂ':'ㅃ','ㅅㅅ':'ㅆ','ㅈㅈ':'ㅉ'};if(dbl[hangul.l+ch])hangul.l=dbl[hangul.l+ch];else{committed+=hangul.l;hangul={l:ch,v:'',t:''}}}else if(hangul.l&&hangul.v&&!hangul.t)hangul.t=ch;else if(hangul.l&&hangul.v&&hangul.t&&DT[hangul.t+ch])hangul.t=DT[hangul.t+ch];else{committed+=syllable();hangul={l:ch,v:'',t:''}}}paint()}
+ function addText(t){saveUndo();commit();committed+=t;paint()}
+ function backspace(){if(undoStack.length){const q=undoStack.pop();committed=q.committed;hangul=q.hangul;paint();return}if(hangul.t){if(ST[hangul.t])hangul.t=ST[hangul.t][0];else hangul.t=''}else if(hangul.v){const pair=Object.entries(DV).find(([k,v])=>v===hangul.v);hangul.v=pair?pair[0][0]:''}else if(hangul.l)hangul.l='';else committed=committed.slice(0,-1);paint()}
+ function hideKeyboard(){commit();chat.classList.remove('keyboard-open');vk.setAttribute('aria-hidden','true')}
+ function sendVirtual(){commit();send();committed='';hangul={l:'',v:'',t:''};undoStack=[];messageInput.value='';$('sendMessage').disabled=true}
+ function showKeyboard(){chat.classList.add('keyboard-open');vk.setAttribute('aria-hidden','false');drawKeyboard()}
+ const layouts={ko:[['ㅂ','ㅈ','ㄷ','ㄱ','ㅅ','ㅛ','ㅕ','ㅑ','ㅐ','ㅔ'],['ㅁ','ㄴ','ㅇ','ㄹ','ㅎ','ㅗ','ㅓ','ㅏ','ㅣ'],['⇧','ㅋ','ㅌ','ㅊ','ㅍ','ㅠ','ㅜ','ㅡ','⌫']],en:[['q','w','e','r','t','y','u','i','o','p'],['a','s','d','f','g','h','j','k','l'],['⇧','z','x','c','v','b','n','m','⌫']],num:[['1','2','3','4','5','6','7','8','9','0'],['-','/',':',';','(',')','$','&','@','"'],['#+=','.',' ',',','?','!','\'','⌫']]};
+ function key(label,cls,fn){const b=document.createElement('button');b.type='button';b.className='ios-vk-key'+(cls?' '+cls:'');b.textContent=label;b.addEventListener('pointerdown',e=>e.preventDefault());b.addEventListener('click',fn);return b}
+ function drawKeyboard(){vk.innerHTML='';layouts[vkMode].forEach(keys=>{const row=document.createElement('div');row.className='ios-vk-row';keys.forEach(k=>{const koShift={'ㅂ':'ㅃ','ㅈ':'ㅉ','ㄷ':'ㄸ','ㄱ':'ㄲ','ㅅ':'ㅆ','ㅐ':'ㅒ','ㅔ':'ㅖ'};const label=vkMode==='en'&&vkShift&&k.length===1?k.toUpperCase():vkMode==='ko'&&vkShift?(koShift[k]||k):k;let cls=['⇧','⌫','#+='].includes(k)?'special utility':'';row.append(key(label,cls,()=>{if(k==='⌫'){backspace();return}if(k==='⇧'){vkShift=!vkShift;drawKeyboard();return}if(k==='#+='){vkMode='num';drawKeyboard();return}if(vkMode==='ko')addHangul(vkShift?(koShift[k]||k):k);else addText(vkMode==='en'&&vkShift?k.toUpperCase():k);if(vkShift){vkShift=false;drawKeyboard()}}))});vk.append(row)});const row=document.createElement('div');row.className='ios-vk-row';row.append(key(vkMode==='ko'?'123':vkMode==='num'?'ABC':'한글','special wide',()=>{vkMode=vkMode==='ko'?'num':vkMode==='num'?'en':'ko';drawKeyboard()}));row.append(key('🌐','special utility',()=>{vkMode=vkMode==='ko'?'en':'ko';drawKeyboard()}));row.append(key(vkMode==='ko'?'한/영':vkMode==='en'?'대소문자':'#+=','special wide',()=>{if(vkMode==='ko')vkMode='en';else if(vkMode==='en')vkShift=!vkShift;else addText(' ');drawKeyboard()}));row.append(key('space','space',()=>addText(' ')));row.append(key('완료','special wide',hideKeyboard));row.append(key('전송','action wide',()=>{sendVirtual();hideKeyboard()}));vk.append(row)}
+ $('sendMessage').onclick=()=>{sendVirtual();hideKeyboard()};messageInput.addEventListener('click',showKeyboard);messageInput.parentElement.addEventListener('click',showKeyboard);messageInput.addEventListener('focus',e=>{e.target.blur();showKeyboard()});messageInput.addEventListener('keydown',e=>e.preventDefault());messageInput.setAttribute('readonly','readonly');messageInput.setAttribute('inputmode','none');
+ const chatObserver=new MutationObserver(()=>{if(!chat.classList.contains('active'))hideKeyboard()});chatObserver.observe(chat,{attributes:true,attributeFilter:['class']});
+ renderList();
+})();
+</script>
+
+
+<style id="ios-clock-system">
+/* Clock-only adjustment: allow the lock-screen digits to occupy a taller box and render larger. */
+.ios-lock-time{position:absolute;left:7%;top:10.9%;width:86%;height:18%;z-index:14;display:flex;align-items:center;justify-content:center;pointer-events:none;user-select:none;color:rgba(255,255,255,.94);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;font-size:clamp(48px,25cqw,132px);font-weight:600;letter-spacing:-.065em;line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 1px 9px rgba(0,0,0,.18);white-space:nowrap;transform:scaleY(1.18);transform-origin:center center}
+.ios-status-time{position:absolute;left:8.2%;top:2.9%;z-index:45;display:none;pointer-events:none;user-select:none;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;font-size:clamp(11px,3.45cqw,28px);font-weight:650;letter-spacing:-.025em;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ios-status-time.visible{display:block}
+/* Status clock color is controlled by the active screen in ios-clock-system-script. */
+@media(max-width:600px){.ios-lock-time{top:10.9%;height:18%;font-size:25cqw;letter-spacing:-.07em;transform:scaleY(1.18)}.ios-status-time{font-size:3.45cqw;top:2.9%}}
+</style>
+<script id="ios-clock-system-script">
+(()=>{const lockTime=document.getElementById('iosLockTime'),statusTime=document.getElementById('iosStatusTime'),lockScreen=document.getElementById('lock');const pad=n=>String(n).padStart(2,'0');const blackScreens=new Set(['calendar','mail','mail-all','mail-message','mail-vip','vipmail-message-detail1','vipmail-message-detail2','vipmail-message-detail3','vipmail-message-detail4','vipmail-message-detail5','vipmail-message-detail6','vipmail-message-detail7','vipmail-message-detail8','mail-drafts','mail-drafts-2','mail-sent','mail-trash','contacts','notes','note-edit','photos','photo-detail','x','phone','phone-favorites','phone-contacts','phone-keypad','phone-voicemail','phone-voicemail-detail','messages','message-chat','safari','safari-news']);const whiteScreens=new Set(['contact-detail','phone-call']);function updateTime(){const now=new Date(),value=pad(now.getHours())+':'+pad(now.getMinutes());if(lockTime)lockTime.textContent=value;if(statusTime)statusTime.textContent=value}function syncVisibleClock(){const onLock=!!(lockScreen&&lockScreen.classList.contains('active'));if(lockTime)lockTime.style.display=onLock?'flex':'none';if(statusTime){statusTime.classList.toggle('visible',!onLock);const activeScreen=document.querySelector('.screen.active');const id=activeScreen?activeScreen.id:'';statusTime.style.color=whiteScreens.has(id)?'#FFFFFF':(blackScreens.has(id)?'#000000':'#FFFFFF')}}updateTime();syncVisibleClock();setInterval(()=>{updateTime();syncVisibleClock()},1000);const observer=new MutationObserver(syncVisibleClock);document.querySelectorAll('.screen').forEach(screen=>observer.observe(screen,{attributes:true,attributeFilter:['class']}))})();
+</script>
+
+<script id="persistent-home-badge-controller">
+(()=>{const key='iphone16-home-badges-v1';let state=window.__badgeState||(window.__badgeState={missedCallIds:[],unreadByConversation:{}});if(!Array.isArray(state.missedCallIds))state.missedCallIds=[];if(!state.unreadByConversation||typeof state.unreadByConversation!=='object')state.unreadByConversation={};
+ ['initial-missed-070','initial-missed-chihaya'].forEach(id=>{if(!state.missedCallIds.includes(id))state.missedCallIds.push(id)});
+ const save=()=>{render()};const msgCount=()=>Object.values(state.unreadByConversation).reduce((n,a)=>n+(Array.isArray(a)?a.length:0),0);
+ function render(){const mail=document.getElementById('badge-mail'),phone=document.getElementById('badge-phone'),msg=document.getElementById('badge-messages');if(mail){mail.textContent='999+';mail.hidden=false}if(phone){phone.textContent=String(state.missedCallIds.length);phone.hidden=state.missedCallIds.length===0}const n=msgCount();if(msg){msg.textContent=String(n);msg.hidden=n===0}}window.__refreshHomeBadges=render;window.__registerMissedCall=(record)=>{const id=record&&record.badgeId?String(record.badgeId):'missed-'+Date.now()+'-'+Math.random().toString(36).slice(2);state.missedCallIds.push(id);save();return id};window.__clearMissedCallBadge=(id)=>{if(id){const i=state.missedCallIds.indexOf(String(id));if(i>=0)state.missedCallIds.splice(i,1)}else if(state.missedCallIds.length)state.missedCallIds.shift();save()};window.__getHomeBadgeState=()=>JSON.parse(JSON.stringify(state));window.__setUnreadMessageCount=(conversationId,count)=>{state.unreadByConversation[conversationId]=Array.from({length:Math.max(0,Number(count)||0)},(_,i)=>'restored-'+conversationId+'-'+i);save()};render();})();
+</script>
+
+</body></html>
