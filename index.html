@@ -1344,6 +1344,11 @@ render();
 #iosVirtualKeyboard button.vk-space{flex:5}#iosVirtualKeyboard button.vk-wide{flex:1.55}#iosVirtualKeyboard button.vk-return{flex:1.8;background:#8d9aaa;color:#fff}
 #iosVirtualKeyboard button:active{filter:brightness(.9)}
 #iosVirtualKeyboard .vk-toolbar button{background:transparent;box-shadow:none;color:#303640;font-size:inherit;flex:initial;padding:0 2%;height:100%}
+/* iOS-style Messages keyboard avoidance: keep composer above the keyboard and resize history */
+#iosVirtualKeyboard{box-sizing:border-box}
+#phoneShell.keyboard-open-message #message-chat .msg-input-bar{bottom:31%;transition:bottom .18s ease}
+#phoneShell.keyboard-open-message #message-chat .msg-chat-history{bottom:43%;transition:bottom .18s ease}
+#phoneShell.keyboard-open-message #message-chat .msg-input-bar{z-index:2147483001}
 </style>
 <script id="ios-virtual-keyboard-script">
 (()=>{
@@ -1376,8 +1381,8 @@ render();
  function fire(){if(!target)return;target.dispatchEvent(new Event('input',{bubbles:true}));target.dispatchEvent(new Event('change',{bubbles:true}))}
  function addText(t){if(!target)return;let max=target.maxLength>0?target.maxLength:Infinity;let start=typeof target.selectionStart==='number'?target.selectionStart:target.value.length,end=typeof target.selectionEnd==='number'?target.selectionEnd:start;let v=target.value||'';let ins='';if(mode==='ko'&&t.length===1&&(/[ㄱ-ㅎㅏ-ㅣ]/).test(t)){insertHangul(t);fire();return}ins=t;target.value=(v.slice(0,start)+ins+v.slice(end)).slice(0,max);fire()}
  function render(){let rows=layouts[mode],wrap=kb.querySelector('#vkRows');wrap.innerHTML='';rows.forEach((row,ri)=>{let r=document.createElement('div');r.className='vk-row';row.forEach(k=>{let b=document.createElement('button');b.type='button';b.textContent=k==='space'?'공백':k==='return'?'전송':k;b.dataset.key=k;if(['⇧','⌫','123','ABC','한글','🌐','.?123','한/영','return'].includes(k))b.classList.add(k==='return'?'vk-return':'vk-dark');if(k==='space')b.classList.add('vk-space');if(['123','ABC','한글','.?123','한/영'].includes(k))b.classList.add('vk-wide');r.appendChild(b)});wrap.appendChild(r)});kb.querySelector('#vkModeLabel').textContent=mode==='ko'?'한국어':mode==='en'?'English':'123';}
- function show(el){if(!el||!['messageInput','noteText','xnewText','xreplyText'].includes(el.id))return;target=el;kb.classList.add('visible');render()}
- function hide(){kb.classList.remove('visible');target=null}
+ function show(el){if(!el||!['messageInput','noteText','xnewText','xreplyText'].includes(el.id))return;target=el;kb.classList.add('visible');phone.classList.toggle('keyboard-open-message',el.id==='messageInput');render()}
+ function hide(){kb.classList.remove('visible');phone.classList.remove('keyboard-open-message');target=null}
  phone.addEventListener('click',e=>{let el=e.target.closest('#messageInput,#noteText,#xnewText,#xreplyText');if(el){e.preventDefault();show(el)}} ,true);
  phone.addEventListener('focusin',e=>{if(e.target.matches('#messageInput,#noteText,#xnewText,#xreplyText')){e.preventDefault();show(e.target)}},true);
  kb.addEventListener('pointerdown',e=>e.preventDefault());kb.addEventListener('click',e=>{let b=e.target.closest('button[data-key],button[data-vk]');if(!b)return;if(b.dataset.vk==='hide'){hide();return}let k=b.dataset.key;if(k==='⌫'){if(!target)return;let v=target.value||'',a=typeof target.selectionStart==='number'?target.selectionStart:v.length,z=typeof target.selectionEnd==='number'?target.selectionEnd:a;if(a===z&&a>0)a--;target.value=v.slice(0,a)+v.slice(z);fire();return}if(k==='space'){addText(' ');return}if(k==='return'){if(target&&target.id==='messageInput'){document.getElementById('sendMessage')?.click();return}if(target&&target.id==='xnewText'){document.querySelector('#x [data-publishpost]')?.click();return}if(target&&target.id==='xreplyText'){(document.querySelector('#x [data-publishreply]')||document.querySelector('#x [data-sendreply]'))?.click();return}addText('\n');return}if(k==='123'||k==='.?123'){mode='num';render();return}if(k==='ABC'){mode='en';render();return}if(k==='한글'){mode='ko';render();return}if(k==='한/영'||k==='🌐'){mode=mode==='ko'?'en':mode==='en'?'num':'ko';render();return}if(k==='⇧'){return}if(mode==='ko'&&keyMap[k]){addText(k);return}addText(k)});
