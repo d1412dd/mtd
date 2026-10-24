@@ -168,6 +168,20 @@ html, body, body *, input, textarea, select, button {
 .msg-attachment{display:block;max-width:70%;max-height:28cqh;object-fit:contain;border-radius:12px;margin:1% 0 1% auto}
 .msg-bubble-row.in .msg-attachment{margin:1% auto 1% 0}
 .msg-bubble-row:has(.msg-attachment){align-items:flex-end;flex-wrap:wrap}
+
+/* Calendar-only refinement: continuous vertical month scrolling and year pill. */
+#calendar .ios-calendar-top{position:absolute;left:0;right:0;top:0;height:9%;background:rgba(255,255,255,.98);z-index:3;display:flex;align-items:flex-start;justify-content:center;padding-top:10%;box-sizing:border-box;}
+#calendar .ios-calendar-year-row{display:flex;align-items:center;justify-content:center;width:100%;}
+#calendar #calendarYearLabel{display:inline-flex;align-items:center;justify-content:center;min-width:112px;padding:7px 22px;border-radius:999px;background:#f0f0f5;border:1px solid #e2e2e8;color:#1c1c1e;font-size:22px;line-height:1.2;font-weight:750;box-sizing:border-box;}
+#calendar .ios-calendar-body{position:absolute;top:13%;bottom:0;left:0;right:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;background:#fff;scrollbar-width:none;}
+#calendar .ios-calendar-body::-webkit-scrollbar{display:none;}
+#calendar .calendar-month-section{width:100%;padding-bottom:10px;}
+#calendar .calendar-month-title{font-size:clamp(25px,7cqw,34px);font-weight:750;letter-spacing:-.6px;padding:13px 5% 7px;margin:0;color:#171719;line-height:1.15;}
+#calendar .calendar-weekdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));text-align:center;font-size:10px;color:#7b7b80;padding:0 2% 5px;border-bottom:1px solid #e5e5ea;}
+#calendar .calendar-weekdays .sunday{color:#ff3b30;}#calendar .calendar-weekdays .saturday{color:#007aff;}
+#calendar .calendar-event-bar span{max-width:4em;overflow:hidden;white-space:nowrap;text-overflow:clip;color:#fff;pointer-events:none;}
+#calendar .calendar-event-bar.calendar-range-event span{max-width:none;}
+
 </style>
 
 
@@ -380,7 +394,7 @@ html > body > main > section:nth-of-type(3) > span:nth-of-type(3){position:absol
 <span class="home-app-badge" id="badge-phone" hidden aria-label="부재중 전화"></span>
 <span class="home-app-badge" id="badge-messages" hidden aria-label="읽지 않은 메시지"></span>
 </section>
-<section class="screen app-screen" id="calendar"><div class="calendar-scroll" id="calendarScroll"><div class="calendar-stack" id="calendarStack"></div></div><img id="calendarFixedHeader" src="calendar2.png" alt="" aria-hidden="true" style="position:absolute;left:0;top:0;width:100%;height:auto;max-width:none;z-index:20;pointer-events:none;display:block"></section>
+<section class="screen app-screen" id="calendar"><div class="ios-calendar-top"><div class="ios-calendar-year-row"><strong id="calendarYearLabel">2023년</strong></div></div><div class="ios-calendar-body" id="calendarBody"></div><div class="calendar-event-sheet" id="calendarEventSheet" hidden><button type="button" class="calendar-sheet-grabber" id="calendarSheetClose" aria-label="닫기"></button><div class="calendar-sheet-date" id="calendarSheetDate"></div><div class="calendar-sheet-event-color" id="calendarSheetColor"></div><div class="calendar-sheet-title" id="calendarSheetTitle"></div><div class="calendar-sheet-detail" id="calendarSheetDetail"></div><button type="button" class="calendar-sheet-done" id="calendarSheetDone">완료</button></div></section>
 <section class="screen app-screen" id="mail"><img class="app-bg" src="mail-home.png"><button class="hit mail-row" data-mail="mail-all" style="left:15%;top:25.2%;width:70%;height:3.9%" aria-label="모든 받은 편지함"></button><button class="hit mail-row" data-mail="mail-vip" style="left:15%;top:31.7%;width:70%;height:3.9%" aria-label="VIP"></button><button class="hit mail-row" data-mail="mail-drafts" style="left:15%;top:38.2%;width:70%;height:3.9%" aria-label="임시 저장"></button><button class="hit mail-row" data-mail="mail-sent" style="left:15%;top:44.7%;width:70%;height:3.9%" aria-label="보낸 편지함"></button><button class="hit mail-row" data-mail="mail-trash" style="left:15%;top:51.1%;width:70%;height:3.9%" aria-label="휴지통"></button></section>
 <section class="screen app-screen" id="mail-all"><img class="app-bg" src="mail-all.png"><button class="hit top-back" data-back="mail" aria-label="뒤로" style="left:3.5%;top:7.1%;width:11.5%;height:5.2%"></button>
 <button class="hit mail-message-row" data-mail-index="0" style="left:20%;top:22.5%;width:78%;height:9.3%" aria-label="경시청 보고서 관리 담당 메일"></button>
@@ -697,8 +711,63 @@ document.querySelectorAll('#note-call2 .call-transcript, #note-call3 .call-trans
 document.querySelectorAll('.call-note-screen').forEach(setupCallScreen);
 // Photos: 3x4 independent hit zones; photo 1 keeps the original detail image, photos 2-12 use their matching supplied files.
 const ph=$('photoHits');const photoDetailImage=document.querySelector('#photo-detail .app-bg');for(let i=0;i<12;i++){let b=document.createElement('button');b.className='hit';let col=i%3,row=Math.floor(i/3);b.style.cssText=`left:${col*33.333}%;top:${8+row*19.0}%;width:33.333%;height:18.5%`;b.setAttribute('aria-label','사진 '+(i+1));b.onclick=()=>{activePhoto=i;const targetPhotoSrc=i===0?'photo-detail.png':`photo-detail${i+1}.png`;if(photoDetailImage.getAttribute('src')!==targetPhotoSrc){photoDetailImage.style.visibility='hidden';photoDetailImage.onload=()=>{photoDetailImage.style.visibility='visible'};photoDetailImage.onerror=()=>{photoDetailImage.style.visibility='visible'};photoDetailImage.src=targetPhotoSrc}else{photoDetailImage.style.visibility='visible'}show('photo-detail');const ov=$('photoOverlay');ov.innerHTML=''};ph.appendChild(b)}
-// Calendar: display the supplied calendar image at its original 376×2047 px size inside the existing vertical scroller.
-const stack=$('calendarStack');stack.style.height='auto';stack.style.minHeight='0';stack.style.display='block';stack.innerHTML='';const calendarImage=document.createElement('img');calendarImage.src='calendar.png';calendarImage.alt='달력';calendarImage.style.cssText='display:block;width:100%;height:auto;max-width:100%;flex:none;';stack.appendChild(calendarImage);const calendarHeader=$('calendarFixedHeader');function sizeCalendarAssets(){const w=$('calendar').clientWidth||376;calendarImage.style.width=w+'px';calendarImage.style.height=(w*2047/376)+'px';calendarImage.style.maxWidth='none';calendarHeader.style.width=w+'px';calendarHeader.style.height=(w*113/376)+'px';}sizeCalendarAssets();window.addEventListener('resize',sizeCalendarAssets);
+// Calendar app: interactive iOS-style calendar, scoped to #calendar only.
+(()=>{
+ const root=document.getElementById('calendar'); if(!root)return;
+ const body=root.querySelector('#calendarBody'), yearLabel=root.querySelector('#calendarYearLabel');
+ const sheet=root.querySelector('#calendarEventSheet'), sheetDate=root.querySelector('#calendarSheetDate'), sheetColor=root.querySelector('#calendarSheetColor'), sheetTitle=root.querySelector('#calendarSheetTitle'), sheetDetail=root.querySelector('#calendarSheetDetail');
+ const months=[9,10,11];
+ const events=[
+  {id:'oct-morning',start:'2023-10-02',end:'2023-10-05',title:'오전근무',detail:'',color:'#ff6674'},
+  {id:'oct-training',start:'2023-10-06',end:'2023-10-06',title:'훈련',detail:'',color:'#3297f5'},
+  {id:'oct-dayoff',start:'2023-10-09',end:'2023-10-09',title:'비번',detail:'',color:'#ffb83f'},
+  {id:'oct-education',start:'2023-10-11',end:'2023-10-11',title:'교육',detail:'',color:'#fa936c'},
+  {id:'oct-card',start:'2023-10-14',end:'2023-10-14',title:'카드값',detail:'',color:'#75cde9'},
+  {id:'oct-father',start:'2023-10-16',end:'2023-10-16',title:'아버지 병원',detail:'',color:'#8b929a'},
+  {id:'oct-night',start:'2023-10-19',end:'2023-10-23',title:'야간 당직',detail:'',color:'#ff6674'},
+  {id:'oct-report',start:'2023-10-30',end:'2023-10-30',title:'보고서 마감',detail:'',color:'#19b99a'},
+  {id:'oct-halloween',start:'2023-10-31',end:'2023-10-31',title:'할로윈',detail:'',color:'#7950a8'},
+  {id:'nov-investigation',start:'2023-11-01',end:'2023-11-01',title:'수사1과',detail:'',color:'#ef3340'},
+  {id:'nov-businesscard',start:'2023-11-04',end:'2023-11-04',title:'명함',detail:'수령',color:'#8b929a'},
+  {id:'nov-office',start:'2023-11-05',end:'2023-11-05',title:'내근',detail:'',color:'#6d95ef'},
+  {id:'nov-miss',start:'2023-11-06',end:'2023-11-07',title:'보고싶다',detail:'11.7 하기기일',color:'#171719'},
+  {id:'dec-christmas',start:'2023-12-25',end:'2023-12-25',title:'크리스마스',detail:'',color:'#ff3045'}
+ ];
+ const key=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+ const parse=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+ const weekday=['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
+ function closeSheet(){sheet.hidden=true;}
+ function openEvent(ev){const d=parse(ev.start);sheetDate.textContent=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${weekday[d.getDay()]}`;sheetColor.style.background=ev.color;sheetTitle.textContent=ev.title;sheetDetail.textContent=ev.detail||'';sheet.hidden=false;}
+ function renderMonth(y,m){
+  const section=document.createElement('section');section.className='calendar-month-section';section.dataset.month=String(m+1);
+  const title=document.createElement('h2');title.className='calendar-month-title';title.textContent=(m+1)+'월';section.appendChild(title);
+  const weekdays=document.createElement('div');weekdays.className='calendar-weekdays';['일','월','화','수','목','금','토'].forEach((d,i)=>{const span=document.createElement('span');span.textContent=d;if(i===0)span.className='sunday';if(i===6)span.className='saturday';weekdays.appendChild(span)});section.appendChild(weekdays);
+  const grid=document.createElement('div');grid.className='calendar-month-grid';
+  const first=new Date(y,m,1),offset=first.getDay(),days=new Date(y,m+1,0).getDate(),totalWeeks=Math.ceil((offset+days)/7);
+  for(let w=0;w<totalWeeks;w++){
+   const row=document.createElement('div');row.className='calendar-week';
+   for(let dow=0;dow<7;dow++){
+    const n=w*7+dow-offset+1;if(n<1||n>days)continue;
+    const dt=new Date(y,m,n),b=document.createElement('button');b.type='button';b.className='calendar-day-number'+(dow===0?' sunday':'')+(dow===6?' saturday':'');b.textContent=n;b.setAttribute('aria-label',`${y}년 ${m+1}월 ${n}일 ${weekday[dow]}`);b.dataset.calendarDate=key(dt);b.style.gridColumn=String(dow+1);row.appendChild(b);
+   }
+   const rowStart=new Date(y,m,w*7-offset+1),rowEnd=new Date(y,m,w*7-offset+7);
+   const rowEvents=events.filter(ev=>{const a=parse(ev.start),z=parse(ev.end);return a<=rowEnd&&z>=rowStart&&a<=new Date(y,m+1,0)&&z>=new Date(y,m,1)}).sort((a,b)=>a.start.localeCompare(b.start));
+   const laneEnds=[];rowEvents.forEach(ev=>{
+    const a=parse(ev.start),z=parse(ev.end);const firstDay=Math.max(1,w*7-offset+1),lastDay=Math.min(days,w*7-offset+7);
+    const segStart=Math.max(a.getMonth()===m?a.getDate():1,firstDay),segEnd=Math.min(z.getMonth()===m?z.getDate():days,lastDay);if(segStart>segEnd)return;
+    const startCol=new Date(y,m,segStart).getDay()+1,endCol=new Date(y,m,segEnd).getDay()+1;let lane=0;while(laneEnds[lane]!==undefined&&laneEnds[lane]>=startCol)lane++;laneEnds[lane]=endCol;
+    const bar=document.createElement('button');bar.type='button';bar.className='calendar-event-bar'+(ev.start!==ev.end?' calendar-range-event':'');bar.style.background=ev.color;bar.style.gridColumn=`${startCol} / ${endCol+1}`;bar.style.gridRow=String(2+lane);bar.setAttribute('aria-label',ev.title+' 일정');bar.dataset.eventId=ev.id;
+    const label=document.createElement('span');label.textContent=ev.start!==ev.end?ev.title:Array.from(ev.title).slice(0,4).join('');bar.appendChild(label);bar.addEventListener('click',e=>{e.stopPropagation();openEvent(ev)});row.appendChild(bar);
+   });
+   const laneCount=Math.max(1,laneEnds.length);row.style.gridTemplateRows=`30px ${Array(laneCount).fill('18px').join(' ')}`;row.style.minHeight=(30+laneCount*18+6)+'px';grid.appendChild(row);
+  }
+  section.appendChild(grid);return section;
+ }
+ function render(){yearLabel.textContent='2023년';body.innerHTML='';closeSheet();months.forEach(m=>body.appendChild(renderMonth(2023,m)));}
+ root.querySelector('#calendarSheetClose').addEventListener('click',closeSheet);root.querySelector('#calendarSheetDone').addEventListener('click',closeSheet);
+ body.addEventListener('click',e=>{if(e.target.closest('.calendar-day-number'))closeSheet()});
+ render();
+})();
 
 // Phone app: isolated implementation. Other app flows remain unchanged.
 const phoneContacts=[
@@ -1362,6 +1431,37 @@ render();
 #phoneShell.keyboard-open-message #message-chat .msg-input-bar{bottom:31%;transition:bottom .18s ease}
 #phoneShell.keyboard-open-message #message-chat .msg-chat-history{bottom:43%;transition:bottom .18s ease}
 #phoneShell.keyboard-open-message #message-chat .msg-input-bar{z-index:2147483001}
+
+/* iOS-style calendar app; styles are scoped to #calendar only. */
+#calendar{background:#fff;color:#111;--cal-blue:#007aff;}
+#calendar .ios-calendar-top{position:absolute;left:0;right:0;top:0;height:9%;background:rgba(255,255,255,.98);z-index:3;display:flex;flex-direction:column;}
+#calendar .ios-calendar-nav{height:43%;display:flex;align-items:center;padding:0 5%;gap:3%;padding-top:3%;}
+#calendar .ios-calendar-nav button{border:0;background:transparent;color:var(--cal-blue);font:500 20px -apple-system,BlinkMacSystemFont,sans-serif;padding:2px 5px;min-width:22px;}
+#calendar #calendarYearLabel{font-size:14px;font-weight:600;color:#222;}
+#calendar .ios-calendar-tools{margin-left:auto;}
+#calendar .ios-calendar-tools button{font-size:13px;border:1px solid #d6d6da;border-radius:14px;padding:4px 9px;}
+#calendar .ios-calendar-month-title{font-size:clamp(25px,7cqw,34px);font-weight:750;letter-spacing:-.6px;padding:0 5% 2%;line-height:1.15;}
+#calendar .ios-calendar-weekdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));text-align:center;font-size:10px;color:#7b7b80;padding:0 2% 5px;border-bottom:1px solid #e5e5ea;}
+#calendar .ios-calendar-body{position:absolute;top:9%;bottom:0;left:0;right:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;background:#fff;scrollbar-width:none;}
+#calendar .ios-calendar-body::-webkit-scrollbar{display:none}
+#calendar .calendar-month-grid{width:100%;}
+#calendar .calendar-week{position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-template-rows:30px 18px 18px;min-height:74px;border-bottom:1px solid #ededf0;padding:0 2%;}
+#calendar .calendar-day-number{grid-row:1;justify-self:center;align-self:center;display:flex;align-items:center;justify-content:center;width:25px;height:25px;border:0;border-radius:50%;background:transparent;color:#1c1c1e;font-size:14px;font-weight:500;padding:0;z-index:1;}
+#calendar .calendar-day-number.sunday{color:#ff3b30}#calendar .calendar-day-number.saturday{color:#007aff}
+#calendar .calendar-day-number.outside{color:#c7c7cc}
+#calendar .calendar-day-number.today-mark{background:#ff3b30;color:#fff}
+#calendar .calendar-event-bar{position:relative;z-index:2;align-self:center;justify-self:stretch;min-width:0;height:16px;overflow:hidden;border:0;border-radius:9px;margin:0 1px;padding:0 5px;text-align:left;color:#fff;font-size:10px;line-height:16px;font-weight:650;white-space:nowrap;text-overflow:clip;cursor:pointer;}
+#calendar .calendar-event-bar:focus-visible{outline:2px solid #111;outline-offset:1px}
+#calendar .calendar-event-bar span{display:block;overflow:hidden;white-space:nowrap;max-width:4em;text-overflow:clip;color:#fff;pointer-events:none}
+#calendar .calendar-event-sheet{position:absolute;left:3%;right:3%;bottom:1.2%;z-index:15;min-height:22%;max-height:54%;overflow:auto;background:#f8f8fa;border:1px solid #e2e2e7;border-radius:18px;box-shadow:0 4px 30px #0003;padding:15px 16px 12px;}
+#calendar .calendar-event-sheet[hidden]{display:none}
+#calendar .calendar-sheet-grabber{display:block;width:36px;height:5px;border:0;border-radius:8px;background:#c7c7cc;margin:0 auto 14px;}
+#calendar .calendar-sheet-date{font-size:12px;color:#77777d;margin-bottom:7px;font-weight:600}
+#calendar .calendar-sheet-title{font-size:20px;font-weight:750;color:#171719;margin:0 0 8px;}
+#calendar .calendar-sheet-detail{font-size:15px;line-height:1.5;color:#333;min-height:22px;white-space:pre-wrap;}
+#calendar .calendar-sheet-event-color{width:8px;height:8px;border-radius:50%;float:left;margin:7px 7px 0 0;}
+#calendar .calendar-sheet-done{margin-top:14px;width:100%;border:0;border-radius:11px;background:#e8e8ed;color:#007aff;font-size:15px;font-weight:600;padding:9px;}
+
 </style>
 <script id="ios-virtual-keyboard-script">
 (()=>{
