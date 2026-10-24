@@ -1284,6 +1284,15 @@ render();
  function renderChat(c){const host=$('messageHistory');host.innerHTML='';let prev='';c.messages.forEach((m,i)=>{const d=m.date||'2023.10.31';if(d!==prev){const sep=document.createElement('div');sep.className='msg-date';sep.textContent=d;host.append(sep);prev=d}const row=document.createElement('div');row.className='msg-bubble-row '+m.side;if(m.image){const im=document.createElement('img');im.className='msg-attachment';im.src=m.image;im.alt='첨부 사진';im.loading='lazy';row.append(im)}if(!m.imageOnly&&m.text){const bubble=document.createElement('div');bubble.className='msg-bubble '+m.side;bubble.textContent=(m.prefix?m.prefix+'\n':'')+m.text;row.append(bubble)}host.append(row)});host.scrollTop=host.scrollHeight}
  function openChat(id){active=id;const c=conversations.find(x=>x.id===id);if(!c)return;markConversationRead(id);$('msgChatContact').textContent=c.name;$('msgChatAvatar').src=c.avatar;renderChat(c);document.querySelectorAll('.screen').forEach(el=>el.classList.toggle('active',el.id==='message-chat'));if(id==='hagi'){const host=$('messageHistory'),chatScreen=$('message-chat');const scrollLatest=()=>{if(active==='hagi'&&chatScreen.classList.contains('active'))host.scrollTop=host.scrollHeight};requestAnimationFrame(()=>{scrollLatest();requestAnimationFrame(scrollLatest)});host.querySelectorAll('img').forEach(im=>{if(!im.complete){im.addEventListener('load',scrollLatest,{once:true});im.addEventListener('error',scrollLatest,{once:true})}})}} window.__openMessageConversation=openChat;
  function send(){const input=$('messageInput'),text=input.value.trim();if(!text||!active)return;const c=conversations.find(x=>x.id===active);c.messages.push({text,side:'out',date:'2023.10.31'});input.value='';$('sendMessage').disabled=true;renderChat(c);renderList();
+ // Ban-jang SMS: reply once when the user sends their fifth message in this conversation during the current session.
+ if(active==='date'){
+  const countState=window.__dateBossFiveMessageState||(window.__dateBossFiveMessageState={count:0,replied:false});
+  countState.count++;
+  if(countState.count>=5&&!countState.replied){
+   countState.replied=true;
+   setTimeout(()=>window.__receiveTriggeredMessage?.('date','반장','나탈리도 나한테 이 정도로 연락하진 않아'),1000+Math.floor(Math.random()*2001));
+  }
+ }
  // Character SMS auto-replies: each configured rule fires once, after a 1–3 second delay.
  const autoReplyUsed=window.__smsAutoReplyUsed||(window.__smsAutoReplyUsed={hiroBaBo:false,zeroSimSim:false,zeroMwohae:false,datePhone:false});
  const scheduleReply=(id,name,message)=>setTimeout(()=>window.__receiveTriggeredMessage?.(id,name,message),1000+Math.floor(Math.random()*2001));
@@ -1346,7 +1355,7 @@ render();
 #iosVirtualKeyboard button{font:500 clamp(10px,3.7cqw,17px)/1 -apple-system,BlinkMacSystemFont,sans-serif;border:0;border-radius:5px;background:#fff;color:#222;box-shadow:0 1px 0 #a7acb5;flex:1;min-width:0;padding:0;touch-action:manipulation}
 #iosVirtualKeyboard button.vk-dark{background:#aeb5c0;font-size:clamp(8px,2.7cqw,13px)}
 #iosVirtualKeyboard button.vk-space{flex:5}#iosVirtualKeyboard button.vk-wide{flex:1.55}#iosVirtualKeyboard button.vk-return{flex:1.8;background:#8d9aaa;color:#fff}
-#iosVirtualKeyboard button:active{filter:brightness(.9)}
+#iosVirtualKeyboard button:active{filter:brightness(.9)}#iosVirtualKeyboard button.vk-shift-active{background:#6f7783;color:#fff;box-shadow:inset 0 0 0 1px #505762}
 #iosVirtualKeyboard .vk-toolbar button{background:transparent;box-shadow:none;color:#303640;font-size:inherit;flex:initial;padding:0 2%;height:100%}
 /* iOS-style Messages keyboard avoidance: keep composer above the keyboard and resize history */
 #iosVirtualKeyboard{box-sizing:border-box}
@@ -1360,9 +1369,10 @@ render();
  const kb=document.createElement('div');kb.id='iosVirtualKeyboard';kb.setAttribute('role','group');kb.setAttribute('aria-label','아이폰 가상 키보드');
  kb.innerHTML='<div class="vk-toolbar"><span id="vkModeLabel">한국어</span><button type="button" data-vk="hide">완료</button></div><div class="vk-rows" id="vkRows"></div>';
  phone.appendChild(kb);
- let target=null,mode='ko';
+ let target=null,mode='ko',shiftOn=false;
  const layouts={ko:[['ㅂ','ㅈ','ㄷ','ㄱ','ㅅ','ㅛ','ㅕ','ㅑ','ㅐ','ㅔ'],['ㅁ','ㄴ','ㅇ','ㄹ','ㅎ','ㅗ','ㅓ','ㅏ','ㅣ'],['⇧','ㅋ','ㅌ','ㅊ','ㅍ','ㅠ','ㅜ','ㅡ','⌫'],['123','🌐','.?123','한/영','space','return']],en:[['q','w','e','r','t','y','u','i','o','p'],['a','s','d','f','g','h','j','k','l'],['⇧','z','x','c','v','b','n','m','⌫'],['123','한글','.?123','space','return']],num:[['1','2','3','4','5','6','7','8','9','0'],['-','/ ',':',';','(',')','$','&','@','"'],['#+=','.',',','?','!','\'','⌫'],['ABC','한글','space','return']]};
  const keyMap={'ㅂ':'q','ㅈ':'w','ㄷ':'e','ㄱ':'r','ㅅ':'t','ㅛ':'y','ㅕ':'u','ㅑ':'i','ㅐ':'o','ㅔ':'p','ㅁ':'a','ㄴ':'s','ㅇ':'d','ㄹ':'f','ㅎ':'g','ㅗ':'h','ㅓ':'j','ㅏ':'k','ㅣ':'l','ㅋ':'z','ㅌ':'x','ㅊ':'c','ㅍ':'v','ㅠ':'b','ㅜ':'n','ㅡ':'m'};
+ const shiftedInitial={'ㄱ':'ㄲ','ㄷ':'ㄸ','ㅂ':'ㅃ','ㅅ':'ㅆ','ㅈ':'ㅉ'};
  const initials=['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
  const vowels=['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
  const finals=['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
@@ -1384,7 +1394,7 @@ render();
  }
  function fire(){if(!target)return;target.dispatchEvent(new Event('input',{bubbles:true}));target.dispatchEvent(new Event('change',{bubbles:true}))}
  function addText(t){if(!target)return;let max=target.maxLength>0?target.maxLength:Infinity;let start=typeof target.selectionStart==='number'?target.selectionStart:target.value.length,end=typeof target.selectionEnd==='number'?target.selectionEnd:start;let v=target.value||'';let ins='';if(mode==='ko'&&t.length===1&&(/[ㄱ-ㅎㅏ-ㅣ]/).test(t)){insertHangul(t);fire();return}ins=t;target.value=(v.slice(0,start)+ins+v.slice(end)).slice(0,max);fire()}
- function render(){let rows=layouts[mode],wrap=kb.querySelector('#vkRows');wrap.innerHTML='';rows.forEach((row,ri)=>{let r=document.createElement('div');r.className='vk-row';row.forEach(k=>{let b=document.createElement('button');b.type='button';b.textContent=k==='space'?'공백':k==='return'?'전송':k;b.dataset.key=k;if(['⇧','⌫','123','ABC','한글','🌐','.?123','한/영','return'].includes(k))b.classList.add(k==='return'?'vk-return':'vk-dark');if(k==='space')b.classList.add('vk-space');if(['123','ABC','한글','.?123','한/영'].includes(k))b.classList.add('vk-wide');r.appendChild(b)});wrap.appendChild(r)});kb.querySelector('#vkModeLabel').textContent=mode==='ko'?'한국어':mode==='en'?'English':'123';}
+ function render(){let rows=layouts[mode],wrap=kb.querySelector('#vkRows');wrap.innerHTML='';rows.forEach((row,ri)=>{let r=document.createElement('div');r.className='vk-row';row.forEach(k=>{let b=document.createElement('button');b.type='button';let shown=k;if(mode==='ko'&&shiftOn){shown=shiftedInitial[k]||({'ㅐ':'ㅒ','ㅔ':'ㅖ'}[k]||k)}b.textContent=shown==='space'?'공백':shown==='return'?'전송':shown;b.dataset.key=k;if(['⇧','⌫','123','ABC','한글','🌐','.?123','한/영','return'].includes(k))b.classList.add(k==='return'?'vk-return':'vk-dark');if(k==='⇧'&&shiftOn)b.classList.add('vk-shift-active');if(k==='space')b.classList.add('vk-space');if(['123','ABC','한글','.?123','한/영'].includes(k))b.classList.add('vk-wide');r.appendChild(b)});wrap.appendChild(r)});kb.querySelector('#vkModeLabel').textContent=mode==='ko'?'한국어':mode==='en'?'English':'123';}
 function show(el){
  if(!el||!['messageInput','noteText','xnewText','xreplyText'].includes(el.id))return;
  target=el;
@@ -1392,10 +1402,11 @@ function show(el){
  phone.classList.toggle('keyboard-open-message',el.id==='messageInput');
  render();
  if(el.id==='messageInput'){
-  requestAnimationFrame(()=>{
+  const keepLatestMessageVisible=()=>{
    const history=document.getElementById('messageHistory');
    if(history)history.scrollTop=history.scrollHeight;
-  });
+  };
+  requestAnimationFrame(()=>{keepLatestMessageVisible();setTimeout(keepLatestMessageVisible,220)});
  }
 }
  function hide(){kb.classList.remove('visible');phone.classList.remove('keyboard-open-message');target=null}
@@ -1404,9 +1415,9 @@ function show(el){
   if(homeScreen&&window.MutationObserver){new MutationObserver(()=>{if(homeScreen.classList.contains('active'))hide()}).observe(homeScreen,{attributes:true,attributeFilter:['class']});}
  phone.addEventListener('click',e=>{let el=e.target.closest('#messageInput,#noteText,#xnewText,#xreplyText');if(el){e.preventDefault();show(el)}} ,true);
  phone.addEventListener('focusin',e=>{if(e.target.matches('#messageInput,#noteText,#xnewText,#xreplyText')){e.preventDefault();show(e.target)}},true);
- kb.addEventListener('pointerdown',e=>e.preventDefault());kb.addEventListener('click',e=>{let b=e.target.closest('button[data-key],button[data-vk]');if(!b)return;if(b.dataset.vk==='hide'){hide();return}let k=b.dataset.key;if(k==='⌫'){if(!target)return;let v=target.value||'',a=typeof target.selectionStart==='number'?target.selectionStart:v.length,z=typeof target.selectionEnd==='number'?target.selectionEnd:a;if(a===z&&a>0)a--;target.value=v.slice(0,a)+v.slice(z);fire();return}if(k==='space'){addText(' ');return}if(k==='return'){if(target&&target.id==='messageInput'){document.getElementById('sendMessage')?.click();return}if(target&&target.id==='xnewText'){document.querySelector('#x [data-publishpost]')?.click();return}if(target&&target.id==='xreplyText'){(document.querySelector('#x [data-publishreply]')||document.querySelector('#x [data-sendreply]'))?.click();return}addText('\n');return}if(k==='123'||k==='.?123'){mode='num';render();return}if(k==='ABC'){mode='en';render();return}if(k==='한글'){mode='ko';render();return}if(k==='한/영'||k==='🌐'){mode=mode==='ko'?'en':mode==='en'?'num':'ko';render();return}if(k==='⇧'){return}if(mode==='ko'&&keyMap[k]){addText(k);return}addText(k)});
+ kb.addEventListener('pointerdown',e=>e.preventDefault());kb.addEventListener('click',e=>{let b=e.target.closest('button[data-key],button[data-vk]');if(!b)return;if(b.dataset.vk==='hide'){hide();return}let k=b.dataset.key;if(k==='⌫'){if(!target)return;let v=target.value||'',a=typeof target.selectionStart==='number'?target.selectionStart:v.length,z=typeof target.selectionEnd==='number'?target.selectionEnd:a;if(a===z&&a>0)a--;target.value=v.slice(0,a)+v.slice(z);fire();return}if(k==='space'){addText(' ');return}if(k==='return'){if(target&&target.id==='messageInput'){document.getElementById('sendMessage')?.click();return}if(target&&target.id==='xnewText'){document.querySelector('#x [data-publishpost]')?.click();return}if(target&&target.id==='xreplyText'){(document.querySelector('#x [data-publishreply]')||document.querySelector('#x [data-sendreply]'))?.click();return}addText('\n');return}if(k==='123'||k==='.?123'){mode='num';render();return}if(k==='ABC'){mode='en';render();return}if(k==='한글'){mode='ko';render();return}if(k==='한/영'||k==='🌐'){mode=mode==='ko'?'en':mode==='en'?'num':'ko';render();return}if(k==='⇧'){shiftOn=!shiftOn;render();return}if(mode==='ko'&&shiftOn){k=shiftedInitial[k]||({'ㅐ':'ㅒ','ㅔ':'ㅖ'}[k]||k);shiftOn=false;render()}if(mode==='ko'&&keyMap[k]){addText(k);return}addText(k)});
  // Hide the keyboard when leaving the relevant app/screen, without changing other screen behavior.
- document.addEventListener('click',e=>{if(!kb.classList.contains('visible'))return;if(e.target.closest('#iosVirtualKeyboard,#messageInput,#noteText,#xnewText,#xreplyText'))return;let relevant=e.target.closest('.screen');if(relevant&&((relevant.id!=='message-chat'&&relevant.id!=='note-edit'&&relevant.id!=='x')||!e.target.closest('#xnewText,#xreplyText'))){hide()}},true);
+ document.addEventListener('click',e=>{if(!kb.classList.contains('visible'))return;if(e.target.closest('#sendMessage'))return;if(e.target.closest('#iosVirtualKeyboard,#messageInput,#noteText,#xnewText,#xreplyText'))return;let relevant=e.target.closest('.screen');if(relevant&&((relevant.id!=='message-chat'&&relevant.id!=='note-edit'&&relevant.id!=='x')||!e.target.closest('#xnewText,#xreplyText'))){hide()}},true);
  // X renders new textareas dynamically; force readonly every time its DOM is rebuilt.
  const xroot=document.getElementById('x');if(xroot){new MutationObserver(()=>{xroot.querySelectorAll('#xnewText,#xreplyText').forEach(el=>{el.readOnly=true;el.setAttribute('inputmode','none')})}).observe(xroot,{childList:true,subtree:true});}
  // Existing note navigation calls focus(); suppress native keyboard and show only our keyboard when the note is opened.
