@@ -536,6 +536,9 @@ $('lock').addEventListener('click',e=>{entered='';document.querySelectorAll('.pa
 $('cancel').onclick=()=>show('lock');
 document.querySelectorAll('[data-digit]').forEach(b=>b.onclick=()=>{if(entered.length>=4)return;entered+=b.dataset.digit;document.querySelectorAll('.passdot').forEach((d,i)=>d.classList.toggle('filled',i<entered.length));b.animate([{transform:'scale(1)'},{transform:'scale(.92)'},{transform:'scale(1)'}],{duration:170});if(entered.length===4){if(entered==='1107')setTimeout(()=>show('home'),170);else{const dots=$('dots');dots.classList.remove('shake');void dots.offsetWidth;dots.classList.add('shake');setTimeout(()=>{dots.classList.remove('shake');entered='';document.querySelectorAll('.passdot').forEach(d=>d.classList.remove('filled'))},600)}}});
 document.querySelectorAll('[data-app]').forEach(b=>b.onclick=()=>show(({calendar:'calendar',mail:'mail',contacts:'contacts',notes:'notes',photos:'photos',phone:'phone',messages:'messages',stocks:'stocks',safari:'safari',music:'music',x:'x'})[b.dataset.app]));
+// Stocks app only: allow its home-screen icon to open Stocks, never let its hitbox activate over other apps.
+const stocksHomeButton=document.querySelector('#home [data-app="stocks"]');
+if(stocksHomeButton)stocksHomeButton.onclick=e=>{if(current!=='home'){e.preventDefault();e.stopImmediatePropagation();return;}show('stocks');};
 // Home app activation guard: route clicks by current and original icon hitboxes before overlays can swallow them.
 const homeAppTargets={calendar:'calendar',mail:'mail',contacts:'contacts',notes:'notes',photos:'photos',phone:'phone',messages:'messages',stocks:'stocks',safari:'safari',music:'music',x:'x'};
 // Hagi Halloween scheduled-message trigger: every home-screen app must be opened once.
