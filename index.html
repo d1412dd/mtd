@@ -1366,9 +1366,12 @@ render();
  const autoReplyUsed=window.__smsAutoReplyUsed||(window.__smsAutoReplyUsed={hiroBaBo:false,zeroSimSim:false,zeroMwohae:false,datePhone:false});
  const scheduleReply=(id,name,message)=>setTimeout(()=>window.__receiveTriggeredMessage?.(id,name,message),1000+Math.floor(Math.random()*2001));
  if(active==='hiro'&&!autoReplyUsed.hiroBaBo&&text.includes('바보')){autoReplyUsed.hiroBaBo=true;scheduleReply('hiro','히로','응? 갑자기?')}
+ if(active==='hiro'&&!autoReplyUsed.hiroBaBo&&text.includes('보고싶')){autoReplyUsed.hiroBaBo=true;scheduleReply('hiro','히로','나라도 보러갈까 ㅎㅎㅎ')}
  if(active==='zero'&&!autoReplyUsed.zeroSimSim&&text.includes('심심해')){autoReplyUsed.zeroSimSim=true;scheduleReply('zero','제로','뭐야, 마츠다~ 오늘 바쁜 거 아니었어?')}
  if(active==='zero'&&!autoReplyUsed.zeroMwohae&&text.includes('뭐해')){autoReplyUsed.zeroMwohae=true;scheduleReply('zero','제로','오늘 좀 바쁘네. 왜?')}
+ if(active==='zero'&&!autoReplyUsed.zeroMwohae&&text.includes('보고싶')){autoReplyUsed.zeroMwohae=true;scheduleReply('zero','제로','마츠다? 음, 다음 달에 보니까!')}
  if(active==='date'&&!autoReplyUsed.datePhone&&text.includes('전화')){autoReplyUsed.datePhone=true;scheduleReply('date','반장','어, 마츠다. 나중에 나중에!')}
+ if(active==='date'&&!autoReplyUsed.datePhone&&text.includes('보고싶')){autoReplyUsed.datePhone=true;scheduleReply('date','반장','마츠다. 괜찮은거 맞아?')}
  // Chihaya's state and functions live in the main app script, so access them through window.
  const chihaya=window.__chihayaState;
  if(active==='chihaya'&&chihaya&&!chihaya.firstSmsUsed){
@@ -1389,7 +1392,7 @@ render();
    },900);
   },firstDelay);
  }
- if(active==='hiro'&&!window.__triggerOnce.hiroReply&&['아니','그냥','잘 지내?'].includes(text)){window.__triggerOnce.hiroReply=true;setTimeout(()=>{if(window.__receiveMessage)window.__receiveMessage('hiro',{text:'응, 나 잘 지내고 있으니까. 나중에 내가 다시 전화할게!',side:'in',date:'2023.10.31'});if((!window.__isConversationOpen||!window.__isConversationOpen('hiro'))&&window.__showIOSMessageNotice)window.__showIOSMessageNotice('히로','응, 나 잘 지내고 있으니까. 나중에 내가 다시 전화할게!','hiro')},900)}if(active==='hagi'&&window.__isHagiHalloweenSequenceFinished?.()&&/보고\s*싶(?:다|어)/.test(text)&&window.__markHagiFinalReplyUsed?.()){setTimeout(()=>{if(window.__receiveMessage)window.__receiveMessage('hagi',{text:'나 보고싶어도. 천천히 와. 넘어질라',side:'in',date:'2023.10.31'});if((!window.__isConversationOpen||!window.__isConversationOpen('hagi'))&&window.__showIOSMessageNotice)window.__showIOSMessageNotice('하기','나 보고싶어도. 천천히 와. 넘어질라','hagi')},500)}}
+ if(active==='hiro'&&!window.__triggerOnce.hiroReply&&['아니','그냥','잘 지내?'].includes(text)){window.__triggerOnce.hiroReply=true;setTimeout(()=>{if(window.__receiveMessage)window.__receiveMessage('hiro',{text:'응, 나 잘 지내고 있으니까. 나중에 내가 다시 전화할게!',side:'in',date:'2023.10.31'});if((!window.__isConversationOpen||!window.__isConversationOpen('hiro'))&&window.__showIOSMessageNotice)window.__showIOSMessageNotice('히로','응, 나 잘 지내고 있으니까. 나중에 내가 다시 전화할게!','hiro')},900)}if(active==='hagi'&&window.__isHagiHalloweenSequenceFinished?.()&&/보고\s*싶(?:다|어)/.test(text)&&window.__markHagiFinalReplyUsed?.()){setTimeout(()=>{if(window.__receiveMessage)window.__receiveMessage('hagi',{text:'나 보고싶어도. 천천히 와. 넘어질라',side:'in',date:'2023.10.31'});if((!window.__isConversationOpen||!window.__isConversationOpen('hagi'))&&window.__showIOSMessageNotice)window.__showIOSMessageNotice('하기','나 보고싶어도 천천히 와. 넘어질라','hagi')},500)}}
  $('sendMessage').onclick=send;$('messageInput').addEventListener('input',()=>{$('sendMessage').disabled=!$('messageInput').value.trim()});$('messageInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();send()}});
  renderList();
 })();
