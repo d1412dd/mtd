@@ -10,39 +10,26 @@
  
 .phone:after{content:'';position:absolute;left:29%;top:0;width:42%;height:1.1%;border-radius:0 0 9px 9px;background:#171717;opacity:.0;pointer-events:none}
 
-.bubble-msg{position:relative;display:block;max-width:82%;width:max-content;min-width:74px;min-height:38px;margin:8px 0;padding:12px 22px;background-repeat:no-repeat;background-size:100% 100%;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.3;color:#111;z-index:1}
-.bubble-msg.in{margin-right:auto;margin-left:0;background-image:url("메시지-수신인 말풍선.png");padding-left:22px;padding-right:22px;color:#111}
-.bubble-msg.out{margin-left:auto;margin-right:0;background-image:url("메시지-발신인 말풍선.png.png");padding-left:22px;padding-right:22px;color:#fff}
-.bubble-msg:before,.bubble-msg:after{content:none!important}
 
-/* Bubble fix: nine-slice scaling preserves rounded corners and the original tail. */
-.bubble-msg{background-color:transparent!important;background-repeat:stretch!important;background-size:auto!important;border-style:solid!important;border-width:13px!important;border-image-slice:30% 20% 22% 20% fill!important;border-image-width:13px!important;border-image-repeat:stretch!important;min-width:74px;min-height:38px;box-sizing:border-box;}
-.bubble-msg.in{border-image-source:url("메시지-수신인 말풍선.png")!important;background-image:none!important;}
-.bubble-msg.out{border-image-source:url("메시지-발신인 말풍선.png.png")!important;background-image:none!important;}
-/* Avoid tiled/repeated artwork and keep text above the bubble artwork. */
-.bubble-msg{background-repeat:no-repeat!important;position:relative;z-index:1;}
 
-/* v7 bubble correction: preserve the original corners/tail with nine-slice borders and center the text. */
-.bubble-msg{
-  display:flex!important; align-items:center!important; justify-content:center!important;
-  text-align:center!important; vertical-align:middle!important;
-  white-space:pre-wrap!important; overflow-wrap:anywhere!important; word-break:normal!important;
-  padding:7px 16px!important; margin-top:8px!important; margin-bottom:8px!important;
-  border-style:solid!important; border-width:12px!important;
-  border-image-slice:45 fill!important; border-image-width:12px!important; border-image-repeat:stretch!important;
-  background-image:none!important; background-color:transparent!important;
-  box-sizing:border-box!important; min-width:74px; min-height:38px;
-  line-height:1.3!important;
-}
-.bubble-msg.in{border-image-source:url("메시지-수신인 말풍선.png")!important;}
-.bubble-msg.out{border-image-source:url("메시지-발신인 말풍선.png.png")!important;}
+
+
+
+
+
+
+
+
+
+
+
 
 /* v44: Lock clock copies the global clock base styling while keeping its own placement. */
 
 /* Scale text-heavy app content against the phone container, not the browser viewport. */
 #noteText{font-size:3.2cqw!important;line-height:1.5!important;}
 #messageInput{font-size:3.7cqw!important;line-height:1.25!important;padding:2cqw 3cqw!important;border-radius:4.8cqw!important;}
-.bubble-msg{font-size:3.7cqw!important;line-height:1.25!important;margin:2.1cqw 0!important;padding:2.3cqw 3.7cqw!important;min-width:0!important;min-height:0!important;border-width:3.4cqw!important;border-image-width:3.4cqw!important;}
+
 #callLines{font-size:2.4cqw!important;line-height:1.55!important;}
 #dialNumber{font-size:8cqw!important;}
 #callNumber{font-size:clamp(30px,7.8cqw,46px)!important;}
@@ -360,10 +347,10 @@ html > body > main > section:nth-of-type(3) > span:nth-of-type(3){position:absol
 @keyframes passcode-shake{0%,100%{transform:translateX(0)}12%{transform:translateX(-14px)}24%{transform:translateX(14px)}36%{transform:translateX(-12px)}48%{transform:translateX(12px)}60%{transform:translateX(-9px)}72%{transform:translateX(9px)}84%{transform:translateX(-4px)}}
 #dots.shake{animation:passcode-shake .58s ease-in-out}
 @media(prefers-reduced-motion:reduce){#dots.shake{animation-duration:.01ms}}
-.bubble-msg{position:relative;display:block;max-width:82%;width:max-content;min-width:74px;min-height:38px;margin:8px 0;padding:12px 22px;background-repeat:no-repeat;background-size:100% 100%;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.3;color:#111;z-index:1}
-.bubble-msg.in{margin-right:auto;margin-left:0;background-image:url("메시지-수신인 말풍선.png");padding-left:22px;padding-right:22px;color:#111}
-.bubble-msg.out{margin-left:auto;margin-right:0;background-image:url("메시지-발신인 말풍선.png.png");padding-left:22px;padding-right:22px;color:#fff}
-.bubble-msg:before,.bubble-msg:after{content:none!important}
+
+
+
+
 </style>
 <button class="hit key" data-digit="1" style="left:15.5%;top:35.4%;width:18.2%;height:8.4%;border-radius:50%" aria-label="1"></button>
 <button class="hit key" data-digit="2" style="left:37.9%;top:35.4%;width:18.2%;height:8.4%;border-radius:50%" aria-label="2"></button>
@@ -1116,25 +1103,60 @@ window.__showPhoneScreen=(id)=>show(id); window.__addChatBubble=(container,text,
 
 
 <style id="generated-chat-bubbles">
-/* CSS-generated chat bubbles: rounded rectangles without tails. */
-.bubble-msg{
-  position:relative!important; display:flex!important; align-items:center!important; justify-content:center!important;
-  box-sizing:border-box!important; width:max-content!important; max-width:82%!important; min-width:74px!important;
-  min-height:38px!important; height:auto!important; margin:8px 0!important; padding:9px 18px!important;
-  border:0!important; border-image:none!important; background-image:none!important; background-repeat:no-repeat!important;
-  border-radius:22px!important; white-space:pre-wrap!important; overflow-wrap:anywhere!important; word-break:normal!important;
-  line-height:1.3!important; text-align:center!important; z-index:1!important; isolation:isolate!important;
+/* CSS-only chat bubbles: no image assets or border-image scaling. */
+.bubble-msg {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  width: max-content !important;
+  max-width: 82% !important;
+  min-width: 0 !important;
+  min-height: 32px !important;
+  height: auto !important;
+  margin: 8px 0 !important;
+  padding: 6px 14px !important;
+  border: 0 !important;
+  border-image: none !important;
+  border-radius: 18px !important;
+  background-image: none !important;
+  background-repeat: no-repeat !important;
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  font-size: 4cqw !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+  text-align: center !important;
+  z-index: 1 !important;
+  isolation: isolate !important;
 }
-.bubble-msg.in{margin-right:auto!important;margin-left:0!important;background:#e7e7e9!important;color:#111!important;}
-.bubble-msg.out{margin-left:auto!important;margin-right:0!important;background:#60aef5!important;color:#fff!important;}
-.bubble-msg:before{content:none!important;display:none!important;}
+.bubble-msg.in {
+  margin-right: auto !important;
+  margin-left: 0 !important;
+  background: #e7e7e9 !important;
+  color: #111 !important;
+}
+.bubble-msg.out {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  background: #60aef5 !important;
+  color: #fff !important;
+}
+.bubble-msg::before, .bubble-msg::after { content: none !important; display: none !important; }
+/* CSS-generated chat bubbles: rounded rectangles without tails. */
+
+
+
+
 /* Keep text editing and resize handles independent of bubble styling. */
 
 </style>
 
 
 <style id="v11-message-tweaks">
-.bubble-msg{font-size:16px!important;font-weight:700!important;line-height:1.25!important;padding:6px 14px!important;min-width:0!important;min-height:32px!important;border-radius:18px!important;}
+
 .conversation-previews{position:absolute;inset:0;pointer-events:none;z-index:3;color:#888;font-size:2.5cqw;line-height:1.15;}
 /* App-scoped previews: never leak message/LINE preview text onto home or another app. */
 #messagePreviews,#removedLinePreviews{display:none!important;}
@@ -1151,7 +1173,6 @@ window.__showPhoneScreen=(id)=>show(id); window.__addChatBubble=(container,text,
 
 
 <style id="v41-responsive-text-only">
-/* Scale text with the phone's own width. Preserve original bubble geometry, spacing and border-image artwork. */
 #noteText, .note-text, textarea.note-editor, .note-editor textarea {
   font-size: 3.2cqw !important;
   line-height: 1.45 !important;
@@ -1160,10 +1181,7 @@ window.__showPhoneScreen=(id)=>show(id); window.__addChatBubble=(container,text,
   font-size: 3.5cqw !important;
   line-height: 1.25 !important;
 }
-.bubble-msg, .message-bubble {
-  font-size: 4cqw !important;
-  line-height: 1.25 !important;
-}
+
 </style>
 
 <style id="x-light-ui">
